@@ -7,10 +7,11 @@ export async function POST(request) {
 
   try {
     const { username, code } = await request.json();
-    console.log(username);
+    console.log(username, code);
     
     const decodedUsername = decodeURIComponent(username);
-    decodedUsername
+    console.log(decodedUsername);
+    
     const user = await UserModel.findOne({ username: decodedUsername });
 
     if (!user) {
