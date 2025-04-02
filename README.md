@@ -11,7 +11,7 @@ JobNest is a Next.js project designed to streamline job applications and managem
 
 1. Clone the repository:
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/misbah1408/JobNest
     cd JobNest
     ```
 
