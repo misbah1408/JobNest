@@ -22,7 +22,6 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: [true, "Password is required"],
   },
   role: {
     type: String,
@@ -35,16 +34,21 @@ const UserSchema = new Schema({
   },
   verifyCode: {
     type: String,
-    required: [true, "Verification code is required"],
+  },
+  provider:{
+    type:String,
+    default: "credentials"
   },
   verifyCodeExpires: {
     type: Date,
-    required: true,
   },
   isVerified: {
     type: Boolean,
     default: false,
   },
+  image:{
+    type:String,
+  }
 });
 
 const UserModel = mongoose.models.User || mongoose.model("User", UserSchema);

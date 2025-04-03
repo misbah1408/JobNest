@@ -31,7 +31,10 @@ export const authOptions = {
           if (!user) throw new Error("No user found");
           if (!user.isVerified) throw new Error("Please verify your email");
 
-          const isValid = await bcrypt.compare(credentials.password, user.password);
+          const isValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
           if (!isValid) throw new Error("Incorrect password");
 
           return {
@@ -39,6 +42,8 @@ export const authOptions = {
             username: user.username,
             email: user.email,
             isVerified: user.isVerified,
+            role: user.role,
+            name: user.name,
           };
         } catch (error) {
           console.error("Authorize error:", error);
@@ -47,13 +52,15 @@ export const authOptions = {
       },
     }),
   ],
-  
+
   callbacks: {
     async signIn({ account, profile }) {
       await dbConnect();
+      // console.log("account", account);
 
       if (account.provider === "google") {
         let user = await UserModel.findOne({ email: profile.email });
+        // console.log(profile);
 
         if (!user) {
           user = await UserModel.create({
@@ -62,6 +69,8 @@ export const authOptions = {
             email: profile.email,
             provider: "google",
             isVerified: true,
+            role: "job_seeker",
+            image: profile.picture,
           });
         }
 
@@ -72,11 +81,27 @@ export const authOptions = {
     },
 
     async jwt({ token, user }) {
+      // console.log("token", token);
+
       if (user) {
         token._id = user._id;
         token.username = user.username;
         token.email = user.email;
         token.isVerified = user.isVerified;
+        token.role = user.role;
+        token.name = user.name;
+      } else {
+        const dbUser = await UserModel.findOne({ email: token.email });
+        // console.log(dbUser);
+        
+        if (dbUser) {
+          token._id = dbUser._id.toString();
+          token.username = dbUser.username;
+          token.isVerified = dbUser.isVerified;
+          token.role = dbUser.role;
+          token.name = dbUser.name;
+          token.picture = dbUser.image;
+        }
       }
       return token;
     },
@@ -88,6 +113,9 @@ export const authOptions = {
           username: token.username,
           email: token.email,
           isVerified: token.isVerified,
+          role: token.role,
+          name: token.name,
+          picture: token.picture
         };
       }
       return session;

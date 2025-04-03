@@ -18,6 +18,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schema/signUpSchema";
 import { toast } from "sonner";
+import { signIn } from "next-auth/react";
 
 export default function SignUpForm() {
   const [username, setUsername] = useState("");
@@ -37,26 +38,26 @@ export default function SignUpForm() {
     },
   });
   const checkUsernameUnique = async (username) => {
-      if (username) {
-        setIsCheckingUsername(true);
-        setUsernameMessage(''); // Reset message
-        try {
-          const response = await axios.get(
-            `/api/check-username-unique?username=${username}`
-          );
-          console.log(response);
-          
-          setUsernameMessage(response.data.message);
-        } catch (error) {
-          const axiosError = error;
-          setUsernameMessage(
-            axiosError.response?.data.message ?? 'Error checking username'
-          );
-        } finally {
-          setIsCheckingUsername(false);
-        }
+    if (username) {
+      setIsCheckingUsername(true);
+      setUsernameMessage(""); // Reset message
+      try {
+        const response = await axios.get(
+          `/api/check-username-unique?username=${username}`
+        );
+        console.log(response);
+
+        setUsernameMessage(response.data.message);
+      } catch (error) {
+        const axiosError = error;
+        setUsernameMessage(
+          axiosError.response?.data.message ?? "Error checking username"
+        );
+      } finally {
+        setIsCheckingUsername(false);
       }
-    };
+    }
+  };
   useEffect(() => {
     const interval = setTimeout(() => {
       checkUsernameUnique(username);
@@ -182,6 +183,7 @@ export default function SignUpForm() {
             </Link>
           </p>
         </div>
+        <button onClick={() => signIn("google")}>Sign in with Google</button>
       </div>
     </div>
   );
