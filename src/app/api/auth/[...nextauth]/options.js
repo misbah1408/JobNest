@@ -27,7 +27,8 @@ export const authOptions = {
               { username: credentials.identifier.toLowerCase() },
             ],
           });
-
+          // console.log(user);
+          
           if (!user) throw new Error("No user found");
           if (!user.isVerified) throw new Error("Please verify your email");
 

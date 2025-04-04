@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { signIn } from "next-auth/react";
 import {
   Form,
@@ -17,10 +16,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signInSchema } from "@/schema/signInSchema";
+import GoogleButton from "react-google-button";
 
 export default function SignInForm() {
   const router = useRouter();
-  const pathname = usePathname()
+  const pathname = usePathname();
   const form = useForm({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -35,7 +35,11 @@ export default function SignInForm() {
       identifier: data.identifier,
       password: data.password,
     });
-  
+
+    if(result.ok) {
+      toast.success("Loggded in successfully")
+    }
+    
     if (result?.error) {
       if (result.error === "CredentialsSignin") {
         toast.error("Login Failed", {
@@ -48,15 +52,14 @@ export default function SignInForm() {
       }
       return; // Prevent further execution
     }
-  
+
     if (result?.url && pathname !== "/dashboard") {
       router.replace("/dashboard");
     }
   };
-  
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-800">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
@@ -100,7 +103,14 @@ export default function SignInForm() {
             </Link>
           </p>
         </div>
-        <button onClick={() => signIn("google")}>Sign in with Google</button>
+        <div className="flex items-center gap-4 text-sm text-gray-500 m-0">
+          <hr className="flex-grow border-t border-gray-300" />
+          <span className="shrink-0">or</span>
+          <hr className="flex-grow border-t border-gray-300" />
+        </div>
+        <div className="w-max h-max m-auto  mt-5 cursor-pointer  content-center  flex justify-center bg-[#4285F4] ">
+          <GoogleButton onClick={() => signIn("google")} />
+        </div>
       </div>
     </div>
   );

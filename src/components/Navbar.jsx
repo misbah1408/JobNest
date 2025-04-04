@@ -6,16 +6,8 @@ import logo from "../../public/logo.png";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { signOut, useSession } from "next-auth/react";
-import { ChevronDown, LogOut, UserRound } from "lucide-react";
+import { BriefcaseBusiness, ChevronDown, LogOut, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "./ui/navigation-menu";
 import {
   Menubar,
   MenubarContent,
@@ -40,9 +32,10 @@ const Navbar = () => {
           <Image src={logo} alt="Logo" className="h-16 w-16" />
         </Link>
         <div className="hidden md:flex">
-          <Button variant={"link"}>{user?.role ? "Jobs" : "Post a Job"}</Button>
+          <Button variant={"link"}>{user?.role ==="job_seeker" ? "Jobs" : "Post a Job"}</Button>
+          {/* <BriefcaseBusiness className="hidden md:flex"/> */}
           <Button variant={"link"}>
-            {user?.role ? "My Applications" : "Employer Dashboard"}
+            {user?.role ==="job_seeker" ? "My Applications" : "Employer Dashboard"}
           </Button>
         </div>
         <div className="w-max flex flex-col cursor-pointer ">
@@ -57,9 +50,12 @@ const Navbar = () => {
                 </Avatar>
               </MenubarTrigger>
               <MenubarContent>
+                <Link href={`/dashboard/profile/${user?.username}`}>
                 <MenubarItem>
                   View Profile
                 </MenubarItem>
+                 </Link>
+
                 <MenubarItem>New Window</MenubarItem>
                 <MenubarSeparator />
                 <MenubarItem>Share</MenubarItem>

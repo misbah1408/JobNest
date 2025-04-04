@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { signUpSchema } from "@/schema/signUpSchema";
 import { toast } from "sonner";
 import { signIn } from "next-auth/react";
+import GoogleButton from "react-google-button";
 
 export default function SignUpForm() {
   const [username, setUsername] = useState("");
@@ -70,13 +71,13 @@ export default function SignUpForm() {
     try {
       const response = await axios.post("/api/sign-up", data);
 
-      toast.success("success", { description: response.data.message });
+      toast.success(response.data.message);
 
       router.replace(`/verify/${username}`);
 
       setIsSubmitting(false);
     } catch (error) {
-      console.error("Error during sign-up:", error);
+      console.error(error);
 
       const axiosError = error;
 
@@ -88,7 +89,7 @@ export default function SignUpForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-800">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
@@ -183,7 +184,14 @@ export default function SignUpForm() {
             </Link>
           </p>
         </div>
-        <button onClick={() => signIn("google")}>Sign in with Google</button>
+        <div className="flex items-center gap-4 text-sm text-gray-500 m-0">
+          <hr className="flex-grow border-t border-gray-300" />
+          <span className="shrink-0">or</span>
+          <hr className="flex-grow border-t border-gray-300" />
+        </div>
+        <div className="w-max h-max m-auto  mt-5 cursor-pointer  content-center  flex justify-center bg-[#4285F4] ">
+          <GoogleButton className="" onClick={() => signIn("google")} />
+        </div>
       </div>
     </div>
   );
