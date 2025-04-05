@@ -1,16 +1,11 @@
 // ProfileCard.jsx
 import React, { useEffect, useState } from "react";
-import { Pen, UserRound, Verified } from "lucide-react";
+import { Verified } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "./ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useForm } from "react-hook-form";
-import { profileSchema } from "@/schema/profileSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
 import EditProfile from "./EditProfile";
-import { Button } from "./ui/button";
 import Image from "next/image";
-import { getImageUrl } from "@/app/utils/constants";
 
 const ProfileCard = ({ data }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -19,7 +14,7 @@ const ProfileCard = ({ data }) => {
   const user = session?.user;
 
   const { email, isVerified, name, role, username, _id, image } = data || {};
-  console.log(image);
+  // console.log(image);
   
   useEffect(() => {
     if (user?._id === data?._id) {
@@ -42,6 +37,7 @@ const ProfileCard = ({ data }) => {
   return (
     <>
       <div className="relative w-full max-w-md mx-auto bg-white border border-gray-200 rounded-xl shadow-md p-6 flex flex-col items-center gap-4 transition-all duration-300 hover:shadow-lg">
+        
         <Avatar className="h-28 w-28 border-4 border-gray-100 shadow-sm">
           <AvatarImage src={image} className="object-cover" />
           <AvatarFallback className="bg-gray-100 text-gray-500">

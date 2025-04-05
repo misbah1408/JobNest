@@ -25,26 +25,62 @@ import {
 import { Input } from "@/components/ui/input";
 import { Pen, Loader2 } from "lucide-react";
 import { profileSchema } from "@/schema/profileSchema";
+import ImageUploadField from "./ImageUploadField";
+import { toast } from "sonner";
 
 const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
   const [username, setUsername] = useState(data?.username);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameMessage, setUsernameMessage] = useState("");
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       username: data?.username || "",
       name: data?.name || "",
       role: data?.role || "",
+      image: data?.image || ""
     },
   });
+  const onSubmit = async (formData) => {
+    setIsSubmitting(true);
 
-  const onSubmit = (formData) => {
-    console.log("SUBMITTED!", formData);
-    setIsEditOpen(false);
+    try {
+      console.log("Submitting form data:", formData);
+
+      // Show loading toast
+      const toastId = toast.loading("Saving your profile...");
+
+      // Step 1: Upload the image if it exists
+      if (formData.image && formData.image !== data?.image) {
+        const fileData = new FormData();
+        fileData.append("file", formData.image);
+
+        const uploadRes = await axios.post("/api/upload-file", fileData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        formData.image = uploadRes?.data?.secure_url;
+      }
+
+      // Step 2: Save the profile
+      const saveRes = await axios.post("/api/save-profile", formData);
+      const message = saveRes?.data?.message || "Profile updated successfully!";
+
+      // Success toast
+      toast.success(message, {id:toastId});
+
+      // Finalize UI state
+      setIsEditOpen(false);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+
+      // Error toast
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  
 
   const checkUsernameUnique = async (username) => {
     if (username) {
@@ -65,10 +101,7 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
       }
     }
   };
-  useEffect(() => {
-    console.log("Form mounted");
-  }, []);
-  
+
   useEffect(() => {
     if (username === data.username) {
       setUsernameMessage("");
@@ -83,8 +116,15 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
   return (
     <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
       <DialogTrigger asChild>
-        <Pen className="w-5 h-5 text-gray-600 cursor-pointer" />
+        <button disabled={isSubmitting}>
+          {isSubmitting ? (
+            <Loader2 className="w-5 h-5 animate-spin " />
+          ) : (
+            <Pen className="w-5 h-5 text-gray-600 cursor-pointer" />
+          )}
+        </button>
       </DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Your Profile</DialogTitle>
@@ -94,7 +134,11 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="flex items-center justify-center rounded-full">
+              <ImageUploadField form={form} defaultImage={data.image} />
+            </div>
+
             {/* Username Field */}
             <FormField
               name="username"
@@ -168,7 +212,37 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
             />
 
             <DialogFooter>
-              <Button type="submit">Save changes</Button>
+              <Button
+                type="submit"
+                className={`flex items-center justify-center gap-2 transition-all duration-300 ${
+                  isSubmitting ? "cursor-not-allowed opacity-75" : ""
+                }`}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin text-white" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>Save Changes</span>
+                  </>
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
