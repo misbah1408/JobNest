@@ -15,7 +15,7 @@ const ProfileCard = ({ data }) => {
 
   const { email, isVerified, name, role, username, _id, image } = data || {};
   // console.log(image);
-  
+
   useEffect(() => {
     if (user?._id === data?._id) {
       setCurrentUserValid(true);
@@ -37,15 +37,20 @@ const ProfileCard = ({ data }) => {
   return (
     <>
       <div className="relative w-full max-w-md mx-auto bg-white border border-gray-200 rounded-xl shadow-md p-6 flex flex-col items-center gap-4 transition-all duration-300 hover:shadow-lg">
-        
         <Avatar className="h-28 w-28 border-4 border-gray-100 shadow-sm">
           <AvatarImage src={image} className="object-cover" />
           <AvatarFallback className="bg-gray-100 text-gray-500">
-          <Image src="https://github.com/shadcn.png" className="object-cover" width={112} height={112} alt={`${username} avatar`}/>
+            <Image
+              src="https://github.com/shadcn.png"
+              className="object-cover"
+              width={112}
+              height={112}
+              alt={`${username} avatar`}
+            />
           </AvatarFallback>
         </Avatar>
 
-        <div className="text-center">
+        <div className="text-left">
           <div className="flex items-center justify-center gap-2 text-2xl font-semibold text-gray-800">
             <span>{name}</span>
             {isVerified && <Verified className="text-blue-500" />}
@@ -57,15 +62,19 @@ const ProfileCard = ({ data }) => {
           </span>
         </div>
         {currentUserValid && (
-            <div className="absolute top-2 right-2 p-3 flex justify-center rounded-full hover:bg-gray-100 transition-colors bg-white">
-                <EditProfile isEditOpen={isEditOpen} setIsEditOpen={setIsEditOpen} data={data}/>
-            </div>
+          <div className="absolute top-2 right-2">
+            <EditProfile
+              isEditOpen={isEditOpen}
+              setIsEditOpen={setIsEditOpen}
+              data={data}
+            />
+          </div>
         )}
         <div>
-            <span>Add resume</span>
+          <span>Add resume</span>
         </div>
-        {/* <Image src={image} height={100} width={100} alt="rwer"/>
-        <Image src={getImageUrl("next-cloudinary-uploads/ixqgelcpbh1zmaymhdrx")} alt="rhb " height={100} width={100}/> */}
+        {/* <Image src={image} height={100} width={100} alt="rwer"/> */}
+        {/* <Image src={getImageUrl("next-cloudinary-uploads/ixqgelcpbh1zmaymhdrx")} alt="rhb " height={100} width={100}/> */}
       </div>
     </>
   );

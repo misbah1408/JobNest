@@ -39,14 +39,14 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
       username: data?.username || "",
       name: data?.name || "",
       role: data?.role || "",
-      image: data?.image || ""
+      image: data?.image || "",
     },
   });
   const onSubmit = async (formData) => {
     setIsSubmitting(true);
 
     try {
-      console.log("Submitting form data:", formData);
+      // console.log("Submitting form data:", formData);
 
       // Show loading toast
       const toastId = toast.loading("Saving your profile...");
@@ -68,7 +68,7 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
       const message = saveRes?.data?.message || "Profile updated successfully!";
 
       // Success toast
-      toast.success(message, {id:toastId});
+      toast.success(message, { id: toastId });
 
       // Finalize UI state
       setIsEditOpen(false);
@@ -116,11 +116,14 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
   return (
     <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
       <DialogTrigger asChild>
-        <button disabled={isSubmitting}>
+        <button
+          disabled={isSubmitting}
+          className="p-3 flex justify-center rounded-full hover:bg-gray-100 transition-colors bg-white cursor-pointer"
+        >
           {isSubmitting ? (
             <Loader2 className="w-5 h-5 animate-spin " />
           ) : (
-            <Pen className="w-5 h-5 text-gray-600 cursor-pointer" />
+            <Pen className=" w-5 h-5 text-gray-600" />
           )}
         </button>
       </DialogTrigger>
@@ -148,6 +151,7 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
                   <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input
+                      className={"selection:bg-blue-500"}
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
@@ -182,7 +186,7 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} className={"selection:bg-blue-500"} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -226,19 +230,7 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
                   </>
                 ) : (
                   <>
-                    <svg
-                      className="w-5 h-5 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    
                     <span>Save Changes</span>
                   </>
                 )}

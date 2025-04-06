@@ -20,8 +20,8 @@ export async function POST(request) {
 
   try {
     const formData = await request.formData();
-    const file = formData?.get("file");
-    // console.log(formData);
+    const file = formData?.get("file") || formData?.get("files[]");
+    console.log(formData);
 
     if (!file) {
       return NextResponse.json({ error: "File not found" }, { status: 400 });
@@ -40,7 +40,7 @@ export async function POST(request) {
       );
       uploadStream.end(buffer);
     });
-    // console.log(result);
+    // console.log(result);  
     
     return NextResponse.json(
       {

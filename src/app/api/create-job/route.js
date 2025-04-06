@@ -1,5 +1,7 @@
 import dbConnect from "@/lib/dbConnect";
 import JobModel from "@/model/Job";
+import { getToken } from "next-auth/jwt";
+import { NextResponse } from "next/server";
 
 export async function POST(request) {
   await dbConnect();
@@ -21,7 +23,6 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-
 
     const newJob = new JobModel({
       title,
@@ -59,6 +60,41 @@ export async function POST(request) {
         success: false,
         message: error.message || "Something went wrong",
       }),
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request) {
+  await dbConnect();
+  const token = await getToken({ req: request });
+  // console.log(token);
+  if (!token) {
+    return new Response.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+  try {
+    
+    const jobs = await JobModel.find({});
+    // console.log("jobs", jobs);
+    
+    if (!jobs) {
+      return NextResponse.json(
+        { success: false, message: "No jobs found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: true, message: "Jobs fetched successfully", jobs},
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error in fetching jobs: ", error.message);
+    return NextResponse.json(
+      { error: "Error in fetching jobs: " },
       { status: 500 }
     );
   }
