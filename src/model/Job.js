@@ -22,10 +22,10 @@ const JobSchema = new Schema({
     required: true,
     default: "Not disclosed",
   },
-  jobType:{
-    type:String,
-    required:true,
-    enum:["Full-time", "Part-time", "Remote", "Internship"]
+  jobType: {
+    type: String,
+    required: true,
+    enum: ["Full-time", "Part-time", "Remote", "Internship"],
   },
   postedBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -35,6 +35,10 @@ const JobSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  applications: {
+    type: Number,
+    default: 0,
   },
 });
 

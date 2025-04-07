@@ -78,7 +78,8 @@ const JobCard = ({ job }) => {
         toast.success(res?.data?.message || "Application submitted successfully!", {
           id: toastId,
         });
-      
+        setOpen(false)
+
         // Optional: reset form, close modal, etc.
       
       } catch (error) {

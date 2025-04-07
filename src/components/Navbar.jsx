@@ -7,8 +7,6 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { signOut, useSession } from "next-auth/react";
 import {
-  BriefcaseBusiness,
-  ChevronDown,
   LogOut,
   UserRound,
 } from "lucide-react";
@@ -19,7 +17,6 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
-  MenubarShortcut,
   MenubarTrigger,
 } from "./ui/menubar";
 

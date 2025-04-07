@@ -68,19 +68,24 @@ export async function POST(request) {
 export async function GET(request) {
   await dbConnect();
   const token = await getToken({ req: request });
-  // console.log(token);
+
   if (!token) {
-    return new Response.json(
+    return NextResponse.json(
       { success: false, message: "Unauthorized" },
       { status: 401 }
     );
   }
+
   try {
+    const { searchParams } = new URL(request.url);
+    const postedBy = searchParams.get('postedBy');
+    // console.log("searchParams ",searchParams);
     
-    const jobs = await JobModel.find({});
-    // console.log("jobs", jobs);
-    
-    if (!jobs) {
+    const filter = postedBy ? { postedBy } : {};
+
+    const jobs = await JobModel.find(filter);
+
+    if (!jobs || jobs.length === 0) {
       return NextResponse.json(
         { success: false, message: "No jobs found" },
         { status: 404 }
@@ -88,13 +93,13 @@ export async function GET(request) {
     }
 
     return NextResponse.json(
-      { success: true, message: "Jobs fetched successfully", jobs},
+      { success: true, message: "Jobs fetched successfully", jobs },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error in fetching jobs: ", error.message);
     return NextResponse.json(
-      { error: "Error in fetching jobs: " },
+      { error: "Error in fetching jobs" },
       { status: 500 }
     );
   }

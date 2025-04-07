@@ -8,7 +8,7 @@ const page = () => {
   const [data, setData] = useState([]);
   const fetchApplications = async() => {
     const response = await axios.get("/api/applications")
-    console.log(response);
+    // console.log(response);
     setData(response?.data?.data.reverse())
   }
   useEffect(()=>{
@@ -16,7 +16,7 @@ const page = () => {
   },[])
   return (
     <div>
-      <div>{data.map(application => <ApplicationCard application={application}/>)
+      <div>{data.map(application => <ApplicationCard key={application._id} application={application}/>)
       }
       </div>
     </div>

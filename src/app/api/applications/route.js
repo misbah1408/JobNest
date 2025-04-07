@@ -2,6 +2,7 @@ import ApplicationModel from "@/model/Application";
 import dbConnect from "@/lib/dbConnect";
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
+import JobModel from "@/model/Job";
 
 export async function POST(request) {
   await dbConnect();
@@ -49,7 +50,13 @@ export async function POST(request) {
     });
 
     await newApplication.save();
-
+    await JobModel.findByIdAndUpdate(
+      {_id: jobId},
+      { $inc: { applications: 1 }},
+    { new: true }
+    );
+    // console.log(application);
+    
     return NextResponse.json(
       {
         success: true,
