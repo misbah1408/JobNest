@@ -5,11 +5,18 @@ import { NextResponse } from "next/server";
 
 export async function POST(request) {
   await dbConnect();
+  const token = await getToken({ req: request });
+  console.log(token);
+  
+  if (token.role !== "employer") {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
   try {
-    const { title, description, company, location, salary, postedBy, jobType } =
-      await request.json();
-
+    const data = await request.json();
+      const { title, description, company, location, salary, postedBy, jobType } = data || {};
+      console.log(data);
+      
     if (
       !title ||
       !description ||
@@ -78,9 +85,9 @@ export async function GET(request) {
 
   try {
     const { searchParams } = new URL(request.url);
-    const postedBy = searchParams.get('postedBy');
+    const postedBy = searchParams.get("postedBy");
     // console.log("searchParams ",searchParams);
-    
+
     const filter = postedBy ? { postedBy } : {};
 
     const jobs = await JobModel.find(filter);

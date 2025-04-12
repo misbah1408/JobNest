@@ -25,7 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { Loader2 } from "lucide-react";
+import { BanknoteX, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 const JobCard = ({ job }) => {
@@ -119,8 +119,8 @@ const JobCard = ({ job }) => {
       <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
         <span className="bg-gray-100 px-3 py-1 rounded-full">{jobType}</span>
         <span className="bg-gray-100 px-3 py-1 rounded-full">{location}</span>
-        <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
-          {salary} INR / yr
+        <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium" title={salary}>
+          {salary == "Not disclosed" ? <BanknoteX /> : salary +"/yr"}
         </span>
       </div>
 

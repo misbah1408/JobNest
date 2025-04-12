@@ -1,3 +1,5 @@
+
+import Link from 'next/link';
 import React from 'react';
 
 const PostedJobs = ({jobs}) => {
@@ -21,9 +23,9 @@ const PostedJobs = ({jobs}) => {
             </div>
 
             <div className="flex gap-3 mt-4 md:mt-0">
-              <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
+              {job.applications > 0 && <Link href={`/dashboard/employer/${job._id}/applicants`}><button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
                 View Applicants
-              </button>
+              </button></Link>}
               <button className="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 text-sm">
                 Edit
               </button>
