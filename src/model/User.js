@@ -29,8 +29,9 @@ const UserSchema = new Schema({
     default: "job_seeker",
     required: true,
   },
-  resume: {
+  resumeUrl: {
     type: String,
+    default:""
   },
   verifyCode: {
     type: String,

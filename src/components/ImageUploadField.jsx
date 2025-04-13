@@ -25,7 +25,7 @@ const ImageUploadField = ({ form, name = "image", defaultImage }) => {
               {/* Clickable Image Preview Box */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-36 h-36 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-300 transition"
+                className="w-28 h-28 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-300 transition"
               >
                 {preview ? (
                   preview && <img

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -25,7 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Pen, Loader2 } from "lucide-react";
 import { profileSchema } from "@/schema/profileSchema";
-import ImageUploadField from "./ImageUploadField";
+import ImageUploadField from "./ImageUploadField"; // Custom image upload field
 import { toast } from "sonner";
 
 const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
@@ -33,6 +33,11 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameMessage, setUsernameMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const [resume, setResume] = useState(null); // New state for resume
+  const fileInputRef = useRef(null);
+  const resumeInputRef = useRef(null); // Ref for the resume input
+
   const form = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -40,15 +45,14 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
       name: data?.name || "",
       role: data?.role || "",
       image: data?.image || "",
+      resume: data?.resumeUrl || "", // Add resume to the form's default values
     },
   });
+
   const onSubmit = async (formData) => {
     setIsSubmitting(true);
 
     try {
-      // console.log("Submitting form data:", formData);
-
-      // Show loading toast
       const toastId = toast.loading("Saving your profile...");
 
       // Step 1: Upload the image if it exists
@@ -63,19 +67,28 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
         formData.image = uploadRes?.data?.secure_url;
       }
 
-      // Step 2: Save the profile
+      // Step 2: Upload the resume if it exists
+      if (formData.resumeUrl != data?.resumeUrl && resume) {
+        const resumeData = new FormData();
+        resumeData.append("file", resume);
+
+        const uploadResumeRes = await axios.post("/api/upload-file", resumeData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        formData.resumeUrl = uploadResumeRes?.data?.secure_url;
+      }
+      console.log(formData);
+      
+      // Step 3: Save the profile
       const saveRes = await axios.post("/api/save-profile", formData);
       const message = saveRes?.data?.message || "Profile updated successfully!";
-
-      // Success toast
       toast.success(message, { id: toastId });
-
-      // Finalize UI state
+      console.log(saveRes);
+      
       setIsEditOpen(false);
     } catch (error) {
       console.error("Error submitting form:", error);
-
-      // Error toast
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -92,10 +105,7 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
         );
         setUsernameMessage(response.data.message);
       } catch (error) {
-        const axiosError = error;
-        setUsernameMessage(
-          axiosError.response?.data.message ?? "Error checking username"
-        );
+        setUsernameMessage("Error checking username");
       } finally {
         setIsCheckingUsername(false);
       }
@@ -123,7 +133,7 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
           {isSubmitting ? (
             <Loader2 className="w-5 h-5 animate-spin " />
           ) : (
-            <Pen className=" w-5 h-5 text-gray-600" />
+            <Pen className="w-5 h-5 text-gray-600" />
           )}
         </button>
       </DialogTrigger>
@@ -138,6 +148,7 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Image Upload */}
             <div className="flex items-center justify-center rounded-full">
               <ImageUploadField form={form} defaultImage={data.image} />
             </div>
@@ -164,10 +175,9 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
                   )}
                   {!isCheckingUsername && usernameMessage && (
                     <p
-                      className={`text-sm mt-1 ${
-                        usernameMessage === "Username is unique"
-                          ? "text-green-500"
-                          : "text-red-500"
+                      className={`text-sm mt-1 ${usernameMessage === "Username is unique"
+                        ? "text-green-500"
+                        : "text-red-500"
                       }`}
                     >
                       {usernameMessage}
@@ -215,6 +225,37 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
               )}
             />
 
+            {/* Resume Upload */}
+            <FormField
+              name="resume"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Resume</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept=".pdf"
+                      ref={resumeInputRef}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setResume(file); // Store the file for upload
+                          field.onChange(file);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  {resume && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      {resume.name} ({(resume.size / 1024).toFixed(2)} KB)
+                    </p>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <DialogFooter>
               <Button
                 type="submit"
@@ -224,15 +265,9 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin text-white" />
-                    <span>Saving...</span>
-                  </>
+                  <Loader2 className="w-5 h-5 animate-spin text-white" />
                 ) : (
-                  <>
-                    
-                    <span>Save Changes</span>
-                  </>
+                  <span>Save Changes</span>
                 )}
               </Button>
             </DialogFooter>

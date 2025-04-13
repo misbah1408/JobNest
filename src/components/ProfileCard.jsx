@@ -1,11 +1,13 @@
 // ProfileCard.jsx
 import React, { useEffect, useState } from "react";
-import { Verified } from "lucide-react";
+import { ArrowRight, Upload, Verified } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { Skeleton } from "./ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import EditProfile from "./EditProfile";
 import Image from "next/image";
+import { Button } from "./ui/button";
+import Link from "next/link";
 
 const ProfileCard = ({ data }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -15,7 +17,7 @@ const ProfileCard = ({ data }) => {
 
   const { email, isVerified, name, role, username, _id, image } = data || {};
   // console.log(image);
-
+  
   useEffect(() => {
     if (user?._id === data?._id) {
       setCurrentUserValid(true);
@@ -36,8 +38,8 @@ const ProfileCard = ({ data }) => {
 
   return (
     <>
-      <div className="relative w-full max-w-md mx-auto bg-white border border-gray-200 rounded-xl shadow-md p-6 flex flex-col items-center gap-4 transition-all duration-300 hover:shadow-lg">
-        <Avatar className="h-28 w-28 border-4 border-gray-100 shadow-sm">
+      {data && <div className="relative w-full max-w-md mx-auto bg-white border border-gray-200 rounded-xl shadow-md p-6 flex flex-col items-center gap-4 transition-all duration-300 hover:shadow-lg">
+        <Avatar className="h-28 w-28 border-4 border-gray-100 shadow-sm" onClick={()=>setIsEditOpen(true)}>
           <AvatarImage src={image} className="object-cover" />
           <AvatarFallback className="bg-gray-100 text-gray-500">
             <Image
@@ -71,11 +73,24 @@ const ProfileCard = ({ data }) => {
           </div>
         )}
         <div>
-          <span>Add resume</span>
+          {user?.resumeUrl ? (
+            <Link href={user.resumeUrl} target="blank"><Button variant={"link"} className={"hover:text-blue-500"}>View resume <ArrowRight className="h-4 w-4" /></Button></Link>
+          ) : (
+            <Button
+              variant="link"
+              onClick={() => {
+                setIsEditOpen(true)
+              }}
+              className="flex items-center gap-2"
+            >
+              Add Resume
+              <Upload />
+            </Button>
+          )}
         </div>
         {/* <Image src={image} height={100} width={100} alt="rwer"/> */}
         {/* <Image src={getImageUrl("next-cloudinary-uploads/ixqgelcpbh1zmaymhdrx")} alt="rhb " height={100} width={100}/> */}
-      </div>
+      </div>}
     </>
   );
 };

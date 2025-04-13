@@ -91,6 +91,7 @@ export const authOptions = {
         token.isVerified = user.isVerified;
         token.role = user.role;
         token.name = user.name;
+        token.resumeUrl = user.resumeUrl;
       } else {
         const dbUser = await UserModel.findOne({ email: token.email });
         // console.log(dbUser);
@@ -102,6 +103,7 @@ export const authOptions = {
           token.role = dbUser.role;
           token.name = dbUser.name;
           token.picture = dbUser.image;
+          token.resumeUrl = dbUser.resumeUrl;
         }
       }
       return token;
@@ -116,7 +118,8 @@ export const authOptions = {
           isVerified: token.isVerified,
           role: token.role,
           name: token.name,
-          picture: token.picture
+          picture: token.picture,
+          resumeUrl: token.resumeUrl,
         };
       }
       return session;

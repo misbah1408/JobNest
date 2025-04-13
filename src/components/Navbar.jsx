@@ -55,10 +55,7 @@ const Navbar = () => {
             <MenubarMenu className={"rounded-full bg-white"}>
               <MenubarTrigger className={"p-0"}>
                 <Avatar className="w-10 h-10">
-                  <AvatarImage
-                    src={user?.picture}
-                    className={"cursor-pointer"}
-                  />
+                  {user?.picture && <AvatarImage src={user.picture} alt='profile'/>}
                   <AvatarFallback>
                     <UserRound />
                   </AvatarFallback>
