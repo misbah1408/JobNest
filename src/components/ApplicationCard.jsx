@@ -1,4 +1,5 @@
 import React from 'react';
+import { CheckCircle, XCircle, Clock, FileText, ClipboardList, CalendarDays } from 'lucide-react';
 
 const ApplicationCard = ({ application }) => {
   const {
@@ -8,52 +9,82 @@ const ApplicationCard = ({ application }) => {
     jobId,
     resumeUrl,
     status,
-  } = application || "";
-  // console.log(application);
-  
+  } = application || {};
+
   const formattedDate = new Date(appliedAt).toLocaleDateString();
 
-  const statusColor = {
-    accepted: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800',
-    pending: 'bg-yellow-100 text-yellow-800',
+  const statusMap = {
+    accepted: {
+      text: "Accepted",
+      color: "bg-green-100 text-green-700",
+      icon: <CheckCircle className="w-4 h-4 mr-1 text-green-600" />
+    },
+    rejected: {
+      text: "Rejected",
+      color: "bg-red-100 text-red-700",
+      icon: <XCircle className="w-4 h-4 mr-1 text-red-600" />
+    },
+    pending: {
+      text: "Pending",
+      color: "bg-yellow-100 text-yellow-700",
+      icon: <Clock className="w-4 h-4 mr-1 text-yellow-500" />
+    }
+  };
+
+  const currentStatus = statusMap[status] || {
+    text: status || "Unknown",
+    color: "bg-gray-100 text-gray-700",
+    icon: <ClipboardList className="w-4 h-4 mr-1 text-gray-500" />
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 max-w-xl mx-auto my-4">
-      <h2 className="text-xl font-semibold text-gray-800 mb-2">
-        Application for Job ID: <span className="text-indigo-600">{jobId}</span>
-      </h2>
-
-      <p className="mb-2">
-        <span className="font-medium text-gray-700">Status:</span>{' '}
-        <span className={`inline-block px-2 py-1 rounded ${statusColor[status] || 'bg-gray-100 text-gray-800'}`}>
-          {status}
-        </span>
-      </p>
-
-      <p className="mb-2 text-gray-700">
-        <span className="font-medium">Applied At:</span> {formattedDate}
-      </p>
-
-      <div className="mb-3">
-        <p className="font-medium text-gray-700">Cover Letter:</p>
-        <p className="text-gray-600">{coverLetter}</p>
+    <div className="bg-white shadow-lg rounded-xl p-6 max-w-2xl mx-auto my-6 border border-gray-100">
+      <div className="mb-4">
+        <h2 className="text-2xl font-semibold text-gray-800">
+          Application for Job ID: <span className="text-indigo-600 font-bold">{jobId}</span>
+        </h2>
       </div>
 
-      <div className="mb-3">
-        <p className="font-medium text-gray-700">Employer Notes:</p>
-        <p className="text-gray-600">{employerNotes}</p>
+      <div className="flex items-center gap-2 mb-3">
+        <div className={`flex items-center px-3 py-1 rounded-full text-sm font-medium ${currentStatus.color}`}>
+          {currentStatus.icon}
+          {currentStatus.text}
+        </div>
       </div>
 
-      <a
-        href={resumeUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-block mt-3 text-indigo-600 hover:underline"
-      >
-        View Resume →
-      </a>
+      <div className="flex items-center text-gray-600 text-sm mb-4">
+        <CalendarDays className="w-4 h-4 mr-2 text-gray-500" />
+        Applied on: <span className="ml-1 font-medium text-gray-700">{formattedDate}</span>
+      </div>
+
+      <div className="mb-4">
+        <p className="text-gray-800 font-semibold mb-1 flex items-center">
+          <FileText className="w-4 h-4 mr-2 text-indigo-500" />
+          Cover Letter:
+        </p>
+        <p className="text-gray-600 pl-6">{coverLetter || "N/A"}</p>
+      </div>
+
+      <div className="mb-4">
+        <p className="text-gray-800 font-semibold mb-1 flex items-center">
+          <ClipboardList className="w-4 h-4 mr-2 text-indigo-500" />
+          Employer Notes:
+        </p>
+        <p className="text-gray-600 pl-6">{employerNotes || "No notes from employer yet."}</p>
+      </div>
+
+      {resumeUrl && (
+        <div className="mt-4">
+          <a
+            href={resumeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-indigo-600 hover:underline font-medium"
+          >
+            📄 View Resume →
+          </a>
+        </div>
+      )}
     </div>
   );
 };
