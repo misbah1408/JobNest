@@ -1,15 +1,15 @@
 # JobNest
 
-JobNest is a job portal built using **Next.js**, designed to connect job seekers with employers. It features user authentication, job posting, application management, and a clean UI for both candidates and employers.
+JobNest is a comprehensive job portal built with **Next.js**, aimed at bridging the gap between job seekers and employers. It offers a seamless experience with features like user authentication, job postings, application tracking, and intuitive dashboards for both candidates and employers.
 
 ## ✨ Features
 
-- ⚡ Built with Next.js for fast performance and scalability.
-- 🧑‍💻 **Authentication**: Sign Up / Sign In with secure routes.
-- 📄 **Job Listings**: View jobs, apply, and track applications.
-- 📝 **Job Posting**: Employers can post jobs with title, description, salary, and location.
-- 📊 **Employer Dashboard**: Track posted jobs, applications, accepted hires, and pending statuses.
-- 🗂️ **Applications**: Users can apply to jobs and employers can manage applications.
+- ⚡ **High Performance**: Powered by Next.js for speed and scalability.
+- 🔒 **Secure Authentication**: Sign up and sign in with protected routes.
+- 📄 **Job Listings**: Browse, apply, and track job applications effortlessly.
+- 📝 **Job Posting**: Employers can create detailed job postings with title, description, salary, and location.
+- 📊 **Employer Dashboard**: Manage job postings, track applications, and monitor hiring progress.
+- 🗂️ **Application Management**: Candidates can apply to jobs, and employers can review and manage applications.
 
 ## 🚀 Getting Started
 
@@ -24,60 +24,63 @@ JobNest is a job portal built using **Next.js**, designed to connect job seekers
     npm install
     ```
 
-3. **Configure environment variables**:
-    - Create a `.env.local` file and add your MongoDB URI and other necessary configs.
+3. **Set up environment variables**:
+    - Create a `.env.local` file and configure the following:
+      - MongoDB URI
+      - JWT secret
+      - Other necessary environment variables
 
 4. **Run the development server**:
     ```bash
     npm run dev
     ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to explore the application.
 
 ---
 
 ## 📁 Routes Overview
 
-### ✅ Auth
-- `/sign-up`: User registration page
-- `/sign-in`: User login page
+### ✅ Authentication
+- `/sign-up`: User registration
+- `/sign-in`: User login
 
 ### 👥 Candidate
-- `/jobs`: View all available jobs
-- `/my-applications`: View your submitted applications
+- `/jobs`: Browse available jobs with search features
+- `/my-applications`: Track your job applications
 
 ### 🧑‍💼 Employer
-- `/post-job`: Post a new job
-- `/dashboard`: View stats (jobs posted, applications, hires)
-- `/dashboard/posted-jobs`: Manage posted jobs
-- `/dashboard/applicants/:jobId`: View applicants for a job
+- `/post-job`: Create a new job posting
+- `/dashboard`: View employer stats (jobs posted, applications, hires)
+- `/dashboard/posted-jobs`: Manage job postings
+- `/dashboard/applicants/:jobId`: Review applicants for a specific job
 
 ---
 
 ## 🧰 Technologies Used
 
-- **Next.js** – App framework
-- **React.js** – Frontend
-- **Tailwind CSS** – Styling
-- **MongoDB** – Database
+- **Next.js** – Framework for server-side rendering and static site generation
+- **React.js** – Frontend library for building user interfaces
+- **Tailwind CSS** – Utility-first CSS framework for styling
+- **MongoDB** – NoSQL database for data storage
 - **Mongoose** – ODM for MongoDB
-- **JWT / NextAuth** – Authentication (if added later)
-- **Cloudinary / Multer (optional)** – Resume uploads (for future)
+- **JWT / NextAuth** – Authentication solutions
+- **Cloudinary / Multer** – File uploads (planned for future features)
 
 ---
 
-## 📌 Upcoming Features (Planned)
+## 📌 Upcoming Features
 
-- Resume upload on application
-- Filter jobs by title, location, salary
-- Notification system for application status
-- Admin panel (for job moderation)
+- Resume upload functionality for job applications
+- Advanced job filtering by title, location, and salary
+- Real-time notifications for application updates
+- Admin panel for job moderation and user management
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the LICENSE file for more details.
 
 ---
 

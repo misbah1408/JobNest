@@ -20,7 +20,11 @@ const EmployerDashboard = () => {
 
   const totalApplicants = (data) => {
     let count = 0;
-    data.map((element) => count += element.applications);
+    data.map((element) => {
+      console.log(element);
+      
+      count += element.applications
+    });
     
     return count;
   }
