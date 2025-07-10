@@ -106,7 +106,7 @@ export default function SignUpForm() {
           className="w-full m-10 z-10 flex flex-col gap-5"
           >
           <Link href="/dashboard">
-            <Image src="/logo.png" alt="JobNest Logo" height={140} width={140} />
+            <Image src="/logo.png" alt="JobNest Logo" height={120} width={120} />
           </Link>
 
           <h2 className="text-4xl font-semibold text-white">

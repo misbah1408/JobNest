@@ -14,7 +14,7 @@ export async function middleware(request) {
 
   // If not logged in, restrict access to protected routes
   if (!token && url.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next(); // Allow request to proceed

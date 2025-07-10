@@ -78,8 +78,8 @@ export default function SignInForm() {
               <Image
                 src="/logo.png"
                 alt="JobNest Logo"
-                height={140}
-                width={140}
+                height={120}
+                width={120}
               />
             </Link>
 
