@@ -17,9 +17,19 @@ import {
   MenubarTrigger,
 } from "./ui/menubar";
 
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
+  const { setTheme } = useTheme()
   const user = session?.user;
   // console.log(user);
   const isJobSeeker = user?.role === "job_seeker";
@@ -33,28 +43,58 @@ const Navbar = () => {
   const secondaryLabel = isJobSeeker ? "My Applications" : "Employer Dashboard";
 
   return (
-    <nav className="p-3 w-full fixed top-0 bg-transparent flex justify-center">
-      <div className="w-[95%] text-white bg-white/10 backdrop-blur-md rounded-full p-2 shadow-lg">
+    <nav className="p-3 w-full fixed top-0 bg-transparent flex justify-center z-10">
+      <div className="w-[95%] text-black dark:text-white bg-white/10 backdrop-blur-md rounded-full p-2 shadow-lg">
         <div className="mx-auto flex justify-around items-center">
           {/* Logo */}
           <Link href="/dashboard">
-          <div className="flex items-center">
-            <Image src={logo} alt="Logo" className="h-16 w-16" />
-            <span className="text-xl font-bold">JobNest</span>
-          </div>
+            <div className="flex items-center">
+              <Image src={logo} alt="Logo" className="h-16 w-16" />
+              <span className="text-xl font-bold">JobNest</span>
+            </div>
           </Link>
           <div className="hidden md:flex text-white">
             <Link href={primaryLink}>
-              <Button variant="link" className={"text-white text-lg"}>{primaryLabel}</Button>
+              <Button variant="link" className={"text-black text-lg dark:text-white"}>
+                {primaryLabel}
+              </Button>
             </Link>
             <Link href={secondaryLink}>
-              <Button variant="link" className={"text-white text-lg"}>{secondaryLabel}</Button>
+              <Button variant="link" className={"text-black text-lg dark:text-white"}>
+                {secondaryLabel}
+              </Button>
             </Link>
           </div>
-          <div className="w-max flex flex-col cursor-pointer ">
+          <div className="w-max flex cursor-pointer gap-5">
+            <div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className={"rounded-full"}>
+                    <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                    <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                    <span className="sr-only">Toggle theme</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                    Light
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    Dark
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("system")}>
+                    System
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <Menubar className={"rounded-full p-0 bg-transparent"}>
-              <MenubarMenu className={"rounded-full transition duration-150 ease-in-out bg-white/10 backdrop-blur-md border border-white/20 data-[state=open]:bg-transparent/20 active:"} >
-                <MenubarTrigger className="p-0 bg-transparent">
+              <MenubarMenu
+                className={
+                  "rounded-full transition duration-150 ease-in-out bg-white/10 backdrop-blur-md border border-white/20 data-[state=open]:bg-transparent/20 active:"
+                }
+              >
+                <MenubarTrigger className="p-0 bg-transparent rounded-full">
                   <Avatar className="w-10 h-10">
                     {user?.picture && (
                       <AvatarImage src={user.picture} alt="profile" />

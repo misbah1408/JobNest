@@ -39,9 +39,7 @@ const Page = () => {
     if (!debouncedQuery) return jobs;
 
     if (cache[debouncedQuery]) {
-      return cache[debouncedQuery].length > 0
-        ? cache[debouncedQuery]
-        : jobs;
+      return cache[debouncedQuery].length > 0 ? cache[debouncedQuery] : jobs;
     }
 
     const filtered = jobs.filter((job) =>
@@ -55,13 +53,13 @@ const Page = () => {
 
   return (
     <div>
-      <div className="relative w-full max-w-xl mx-auto mt-8">
-        <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-md shadow-sm px-4 py-2">
-          <Search className="text-gray-400" />
+      <div className="relative w-full max-w-xl mx-auto mt-8 pt-[90px]">
+        <div className="flex items-center gap-2 dark:bg-black bg-white border border-gray-300 dark:border-gray-700 rounded-md shadow-sm px-4 py-2">
+          <Search className="text-gray-400 dark:bg-black" />
           <Input
             type="text"
             placeholder="Search jobs..."
-            className="w-full border-none focus:outline-none focus:ring-0"
+            className="w-full border-none focus:outline-none focus:ring-0 dark:bg-black"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsFocused(true)}
@@ -70,29 +68,25 @@ const Page = () => {
         </div>
 
         {isFocused && debouncedQuery && filteredJobs.length > 0 && (
-  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
-    {filteredJobs.map((job) => (
-      <div
-        key={job._id}
-        className="px-4 py-2 hover:bg-blue-50 cursor-pointer transition-colors"
-        onClick={() => setQuery(job.title)}
-      >
-        {job.title}
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+            {filteredJobs.map((job) => (
+              <div
+                key={job._id}
+                className="px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-900 cursor-pointer transition-colors"
+                onClick={() => setQuery(job.title)}
+              >
+                {job.title}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isFocused && debouncedQuery && cache[debouncedQuery]?.length === 0 && (
+          <p className="text-sm text-gray-500 px-4 mt-2">
+            No matching jobs found. Showing all jobs.
+          </p>
+        )}
       </div>
-    ))}
-  </div>
-)}
-
-{isFocused &&
-  debouncedQuery &&
-  cache[debouncedQuery]?.length === 0 && (
-    <p className="text-sm text-gray-500 px-4 mt-2">
-      No matching jobs found. Showing all jobs.
-    </p>
-)}
-
-      </div>
-
       <div className="mt-6 space-y-4">
         {filteredJobs.map((job) => (
           <JobCard key={job._id} job={job} />

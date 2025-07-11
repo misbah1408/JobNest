@@ -29,6 +29,7 @@ import { BanknoteX, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
 
 const JobCard = ({ job, id }) => {
   const {
@@ -120,7 +121,6 @@ const JobCard = ({ job, id }) => {
   useEffect(() => {
     setActive(id === _id);
     console.log(id);
-    
   }, []);
 
   const postedDate = formatDistanceToNow(new Date(createdAt), {
@@ -129,11 +129,13 @@ const JobCard = ({ job, id }) => {
 
   return (
     <div
-      className={`relative bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto my-4 border border-gray-200 ${isActive ? "border-2 border-black" : ""}`}
+      className={`relative bg-white dark:bg-black shadow-md rounded-lg p-6 max-w-2xl mx-auto my-4 border border-gray-200 dark:border-gray-700 ${isActive ? "border-2 border-black" : ""}`}
     >
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-400">
+            {title}
+          </h2>
           <p className="text-gray-600">{company}</p>
         </div>
         <span className="text-sm text-gray-500">{postedDate}</span>
@@ -142,10 +144,14 @@ const JobCard = ({ job, id }) => {
       <p className="text-gray-700 mt-4">{description}</p>
 
       <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
-        <span className="bg-gray-100 px-3 py-1 rounded-full">{jobType}</span>
-        <span className="bg-gray-100 px-3 py-1 rounded-full">{location}</span>
+        <span className="bg-gray-100 dark:bg-gray-900 dark:text-gray-400 px-3 py-1 rounded-full">
+          {jobType}
+        </span>
+        <span className="bg-gray-100 dark:bg-gray-900 dark:text-gray-400 px-3 py-1 rounded-full">
+          {location}
+        </span>
         <span
-          className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium flex gap-2 justify-center items-center"
+          className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-gray-200 px-3 py-1 rounded-full font-medium flex gap-2 justify-center items-center"
           title={salary}
         >
           {salary == "Not disclosed" ? (
@@ -159,6 +165,11 @@ const JobCard = ({ job, id }) => {
       </div>
 
       <div className="absolute bottom-5 right-5">
+        <Link href={`/dashboard/jobs/${_id}`}>
+        <Button variant="link" className="cursor-pointer mr-1">
+          Details
+        </Button>
+        </Link>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button
