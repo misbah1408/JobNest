@@ -1,7 +1,10 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import axios from "axios";
-import { ArrowLeft, Briefcase, Calendar, Clock, MapPin } from "lucide-react";
+import { format } from "date-fns";
+import { ArrowLeft, Briefcase, Calendar, Clock, IndianRupee, MapPin } from "lucide-react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -23,6 +26,13 @@ const Page = () => {
     skills,
   } = jobDetails || {};
 
+  const dateFormat = (dateAt) => {
+    if (!dateAt) return;
+    const date = new Date(dateAt);
+    const formatted = format(date, "MMMM d, yyyy");
+
+    return formatted;
+  };
   const fetchJobDetails = async () => {
     try {
       const response = await axios.get(`/api/create-job/${jobId}`);
@@ -50,15 +60,19 @@ const Page = () => {
   return (
     <div className="dark:bg-black min-h-screen pt-24 px-4 md:px-8 lg:px-36">
       {/* Back Button */}
-      <div className="flex items-center mb-8 ml-3">
-        <ArrowLeft className="w-5 h-5 mr-2 dark:text-white" />
-        <span className="dark:text-white">Back to job listings</span>
+      <div className="flex items-center mb-8">
+        <Link href={"/dashboard/jobs"}>
+          <Button variant={"link"} className={"text-sm"}>
+            <ArrowLeft className="w-5 h-5 mr-2 dark:text-white" />
+            <span className="dark:text-white">Back to job listings</span>
+          </Button>
+        </Link>
       </div>
-      
+
       <div className="relative max-w-full">
-        <div className="flex gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content - Left Side */}
-          <div className="dark:text-white w-3/4">
+          <div className="dark:text-white lg:col-span-2">
             {/* Job Title */}
             <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
 
@@ -69,7 +83,7 @@ const Page = () => {
             </div>
 
             {/* Job Description Container */}
-            <div className="dark:bg-gray-900 rounded-lg p-6 md:p-8">
+            <div className="dark:bg-black rounded-lg p-6 md:p-8 border dark:border-gray-700">
               <h2 className="text-2xl font-semibold mb-6">Job Description</h2>
 
               {/* Job Title */}
@@ -150,20 +164,25 @@ const Page = () => {
           </div>
 
           {/* Sidebar - Right Side */}
-          <div className="sticky top-28 dark:bg-gray-900 dark:text-white p-6 rounded-lg shadow-lg w-1/4 h-fit">
+          <div className="sticky top-28 dark:bg-black dark:border-gray-700 border dark:text-white p-6 rounded-lg shadow-lg lg:col-span-1 h-fit">
             {/* Location */}
             <div className="flex items-center mb-6">
               <MapPin className="w-5 h-5 mr-3 text-gray-400" />
               <span className="text-lg font-medium">{location}</span>
             </div>
-
+            <div className="flex items-center mb-6">
+              <IndianRupee className="w-5 h-5 mr-3 text-gray-400" />
+              <span className="text-lg font-medium">{salary}</span>
+            </div>
             {/* Date Information */}
             <div className="space-y-3 mb-6">
               <div className="flex items-center">
                 <Calendar className="w-5 h-5 mr-3 text-gray-400" />
                 <div>
                   <span className="text-gray-400">Posted: </span>
-                  <span className="dark:text-white">{createdAt}</span>
+                  <span className="dark:text-white">
+                    {dateFormat(createdAt)}
+                  </span>
                 </div>
               </div>
 
@@ -179,16 +198,21 @@ const Page = () => {
             </div>
 
             {/* Required Skills */}
-            <div className="mb-6">
-              <h3 className="dark:text-white font-semibold mb-3">Required Skills</h3>
+            {skills && <div className="mb-6">
+              <h3 className="dark:text-white font-semibold mb-3">
+                Required Skills
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {skills?.map((skill, index) => (
-                  <span key={index} className="bg-gray-800 dark:text-white px-3 py-1 rounded-full text-sm">
+                  <span
+                    key={index}
+                    className="bg-gray-800 dark:text-white px-3 py-1 rounded-full text-sm"
+                  >
                     {skill}
                   </span>
                 ))}
               </div>
-            </div>
+            </div>}
 
             {/* Apply Button */}
             <button className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200">

@@ -19,7 +19,7 @@ export async function GET(request, { params }) {
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const jobDetails = await JobModel.findById(id);
 
     if (!jobDetails) {

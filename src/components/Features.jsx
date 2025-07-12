@@ -68,7 +68,7 @@ const Features = () => {
     },
   ];
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-10 ">
       <section className="w-full gap-5 p-8 bg-blue-500/15 border-2 border-blue-500/20 rounded-lg flex flex-col justify-center items-center">
         <span className="px-7 py-3 text-white rounded-full bg-[#3a49cc] flex items-center gap-3 text-lg">
           <Sparkles size={"20px"} />
@@ -88,7 +88,7 @@ const Features = () => {
             return (
               <div
                 key={ft.title}
-                className="bg-white text-card-foreground flex flex-col gap-6 py-6 glass border border-muted/50 shadow-xl transition-all duration-500 rounded-3xl group hover:scale-105 hover:shadow-lg relative overflow-hidden"
+                className="bg-white dark:bg-black text-card-foreground flex flex-col gap-6 py-6 glass border border-muted/50 shadow-xl transition-all duration-500 rounded-3xl group hover:scale-105 hover:shadow-lg relative overflow-hidden"
               >
                 <div className="p-8 space-y-4 relative z-10">
                   <div
@@ -96,30 +96,12 @@ const Features = () => {
                   >
                     {ft.icon}
                   </div>
-                  <span className="text-xl font-semibold ">{ft.title}</span>
-                  <p className="leading-relaxed">{ft.description}</p>
+                  <span className="text-xl font-semibold cursor-default">{ft.title}</span>
+                  <p className="leading-relaxed cursor-default">{ft.description}</p>
                 </div>
               </div>
             );
           })}
-      </section>
-      <section id="how-it-works">
-        <div className="relative max-w-7xl mx-auto rounded-xl *:!text-white p-6 bg-[#3a49cc]">
-          <div className="text-center space-y-6 mb-20">
-            <h2 className="text-5xl font-bold">How it works</h2>
-            <p className="text-xl max-w-2xl mx-auto">
-              Simple, streamlined process from profile to hire in just a few
-              steps.
-            </p>
-          </div>
-          <div className="space-y-8 text-center">
-            <div>
-                <span className="text-primary z-10 *:w-14 *:h-14 bg-white rounded-full p-4">
-                    <FileUp/>
-                </span>
-            </div>
-          </div>
-        </div>
       </section>
     </div>
   );

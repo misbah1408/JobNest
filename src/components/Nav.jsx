@@ -8,6 +8,8 @@ import { DialogTitle } from "@radix-ui/react-dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { bgGrad } from "@/lib/utils";
 
 const Nav = () => {
     const { data: session } = useSession();
@@ -42,7 +44,7 @@ const Nav = () => {
               <div className="flex gap-2">
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button className="rounded-full bg-[#3a49cc] border-2 border-gray-400 py-5 hover:bg-[#3a417d] cursor-pointer">
+                    <Button className="rounded-full bg-[#3a49cc] border-2 border-gray-400 py-5 hover:bg-[#3a417d] cursor-pointer dark:text-white">
                       Book Demo
                     </Button>
                   </DialogTrigger>
@@ -51,15 +53,7 @@ const Nav = () => {
                     <div className="flex w-full max-w-4xl relative z-10">
                       {/* Left side panel with branding */}
                       <div
-                        style={{
-                          background: `
-                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='10' numOctaves='3' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='table' tableValues='0 0'/%3E%3CfeFuncG type='table' tableValues='0 0'/%3E%3CfeFuncB type='table' tableValues='0 0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E"),
-                radial-gradient(circle at 84.593% 18.1395%, #6299f2 0%, transparent 80%),
-                #000 radial-gradient(circle at 100% 96.7442%, #5746d9 0%, transparent 80%)
-              `,
-                          backgroundRepeat: "no-repeat",
-                          backgroundSize: "cover",
-                        }}
+                        style={bgGrad}
                         className="hidden md:flex w-1/2 p-10 text-white flex-col"
                       >
                         <Image
@@ -132,8 +126,9 @@ const Nav = () => {
                 </Dialog>
                 {session ? (
                   <Button
+                  onClick={() => redirect('/dashboard')}
                     className={
-                      "rounded-full bg-[#3a49cc] border-2 border-gray-400 py-5 hover:bg-[#3a417d] cursor-pointer"
+                      "rounded-full bg-[#3a49cc] border-2 border-gray-400 py-5 hover:bg-[#3a417d] cursor-pointer dark:text-white"
                     }
                   >
                     Dashboard
@@ -142,7 +137,7 @@ const Nav = () => {
                   <Link href={"/sign-in"}>
                     <Button
                       className={
-                        "rounded-full bg-[#3a49cc] border-2 border-gray-400 py-5 hover:bg-[#3a417d] cursor-pointer"
+                        "rounded-full bg-[#3a49cc] border-2 border-gray-400 py-5 hover:bg-[#3a417d] cursor-pointer dark:text-white"
                       }
                     >
                       Login

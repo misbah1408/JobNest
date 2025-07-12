@@ -39,7 +39,7 @@ const ProfileCard = ({ data }) => {
   return (
     <>
       {data && (
-        <div className="relative w-full max-w-md mx-auto bg-white border border-gray-200 rounded-xl shadow-md p-6 flex flex-col items-center gap-4 transition-all duration-300 hover:shadow-lg">
+        <div className="relative mt-[100px] w-full max-w-md mx-auto bg-white border border-gray-200 rounded-xl shadow-md p-6 flex flex-col items-center gap-4 transition-all duration-300 hover:shadow-lg">
           <Avatar
             className="h-28 w-28 border-4 border-gray-100 shadow-sm"
             onClick={() => setIsEditOpen(true)}
