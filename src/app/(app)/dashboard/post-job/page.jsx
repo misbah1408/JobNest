@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +11,15 @@ import { useForm, Controller } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { toast } from "sonner";
-import { z } from "zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import locations from "../../../utils/location.json";
+import { X } from "lucide-react";
 
 // You can replace this with your actual switch component
 const Switch = ({ checked, onChange }) => (
@@ -23,46 +31,77 @@ const Switch = ({ checked, onChange }) => (
   />
 );
 
-const locations = ["Remote", "New York", "San Francisco", "London"];
-const durations = ["15m", "30m", "60m"];
+const durations = ["5m", "10m", "15m", "30m", "60m"];
+const jobType = ["Full-time", "Part-time", "Remote", "Internship"];
 
 const PostJobPage = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const user = session?.user;
-
+  
   useEffect(() => {
     if (status === "authenticated" && user?.role !== "employer") {
       router.replace("/dashboard");
     }
   }, [status, user, router]);
+  
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [skills, setSkills] = useState([]);
+  const states = locations["States"];
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const trimmed = inputValue.trim();
+      if (trimmed && !skills.includes(trimmed)) {
+        setSkills([...skills, trimmed]);
+        setInputValue("");
+      }
+    }
+  };
+
+  const removeSkill = (skillToRemove) => {
+    setSkills(skills.filter((skill) => skill !== skillToRemove));
+  };
 
   const {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      title: "",
-      company: "",
-      description: "",
+      jobTitle: "",
+      companyName: "",
+      jobDescription: "",
       jobType: "",
       location: "",
       salary: "",
       jobStatus: false,
       expiryDate: "",
       interviewDuration: "",
+      skills: [],
     },
   });
+
+  // Update skills in form when skills state changes
+  useEffect(() => {
+    setValue("skills", skills);
+  }, [skills, setValue]);
 
   const onSubmit = async (data) => {
     const payload = {
       ...data,
       salary: data.salary || "Not disclosed",
       postedBy: user?._id,
+      location: city.trim() !== "" ? `${state}, ${city}` : state,
+      skills: skills, // Use the skills from state
     };
+    console.log(payload);
 
     try {
       const res = await axios.post("/api/create-job", payload);
@@ -85,74 +124,216 @@ const PostJobPage = () => {
         Create New Job
       </h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-2 gap-6"
+      >
         {/* Left Column */}
         <div className="space-y-5">
-          <FormField id="title" label="Job Title" register={register} errors={errors} />
-          <FormField id="company" label="Company Name" register={register} errors={errors} />
-          <FormField id="salary" label="Salary (Optional)" register={register} errors={errors} />
+          <FormField
+            id="jobTitle"
+            label="Job Title"
+            register={register}
+            errors={errors}
+          />
+          <FormField
+            id="companyName"
+            label="Company Name"
+            register={register}
+            errors={errors}
+          />
+          <FormField
+            id="salary"
+            label="Salary (Optional)"
+            register={register}
+            errors={errors}
+          />
+          <div className="space-y-1">
+            <Label
+              htmlFor="Skills"
+              className="text-gray-700 dark:text-gray-200"
+            >
+              Skills
+            </Label>
+            <Input
+              id="skills"
+              placeholder="Write skill, press Enter or comma"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
 
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill, i) => (
+                <span
+                  key={i}
+                  className="flex items-center bg-blue-500 p-1 text-sm rounded-full text-white"
+                >
+                  {skill}{" "}
+                  <X
+                    className="w-4 h-4 cursor-pointer ml-1"
+                    onClick={() => removeSkill(skill)}
+                  />
+                </span>
+              ))}
+            </div>
+          </div>
           {/* Job Status */}
           <div className="flex items-center space-x-3">
-            <Label htmlFor="jobStatus" className="text-gray-700 dark:text-gray-200">
+            <Label
+              htmlFor="jobStatus"
+              className="text-gray-700 dark:text-gray-200"
+            >
               Job Status
             </Label>
             <Controller
               control={control}
               name="jobStatus"
-              render={({ field }) => <Switch checked={field.value} onChange={field.onChange} />}
+              render={({ field }) => (
+                <Switch checked={field.value} onChange={field.onChange} />
+              )}
             />
           </div>
         </div>
 
         {/* Right Column */}
         <div className="space-y-5">
+          <div>
+            <Label
+              htmlFor="jobType"
+              className="block text-gray-700 dark:text-gray-200 mb-1"
+            >
+              Job Type
+            </Label>
+            <Controller
+              control={control}
+              name="jobType"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Job type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jobType.map((ty) => (
+                      <SelectItem key={ty} value={ty}>
+                        {ty}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.jobType && (
+              <p className="text-sm text-red-500">{errors.jobType.message}</p>
+            )}
+          </div>
+          
           {/* Location */}
           <div>
-            <Label htmlFor="location" className="block text-gray-700 dark:text-gray-200 mb-1">
+            <Label
+              htmlFor="location"
+              className="block text-gray-700 dark:text-gray-200 mb-1"
+            >
               Location
             </Label>
-            <select
-              {...register("location")}
-              className="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded"
-            >
-              <option value="">Select location</option>
-              {locations.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
-            {errors.location && <p className="text-sm text-red-500">{errors.location.message}</p>}
+            <Controller
+              control={control}
+              name="location"
+              render={({ field }) => (
+                <Select 
+                  onValueChange={(value) => {
+                    setState(value);
+                    field.onChange(value);
+                  }} 
+                  value={field.value}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {states.map((loc) => (
+                      <SelectItem key={loc} value={loc}>
+                        {loc}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.location && (
+              <p className="text-sm text-red-500">{errors.location.message}</p>
+            )}
           </div>
+
+          {state && state !== "Remote" && (
+            <div>
+              <Label
+                htmlFor="City"
+                className="block text-gray-700 dark:text-gray-200 mb-1"
+              >
+                City
+              </Label>
+              <Select onValueChange={(value) => setCity(value)} value={city}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select city" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations[state]?.map((loc) => (
+                    <SelectItem key={loc} value={loc}>
+                      {loc}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Expiry Date */}
           <div>
-            <Label htmlFor="expiryDate" className="block text-gray-700 dark:text-gray-200 mb-1">
+            <Label
+              htmlFor="expiryDate"
+              className="block text-gray-700 dark:text-gray-200 mb-1"
+            >
               Expiry Date
             </Label>
             <Input type="date" {...register("expiryDate")} />
-            {errors.expiryDate && <p className="text-sm text-red-500">{errors.expiryDate.message}</p>}
+            {errors.expiryDate && (
+              <p className="text-sm text-red-500">
+                {errors.expiryDate.message}
+              </p>
+            )}
           </div>
 
           {/* Interview Duration */}
           <div>
-            <Label htmlFor="interviewDuration" className="block text-gray-700 dark:text-gray-200 mb-1">
+            <Label
+              htmlFor="interviewDuration"
+              className="block text-gray-700 dark:text-gray-200 mb-1"
+            >
               Interview Duration
             </Label>
-            <select
-              {...register("interviewDuration")}
-              className="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded"
-            >
-              <option value="">Select duration</option>
-              {durations.map((dur) => (
-                <option key={dur} value={dur}>
-                  {dur}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="interviewDuration"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {durations.map((dur) => (
+                      <SelectItem key={dur} value={dur}>
+                        {dur}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.interviewDuration && (
-              <p className="text-sm text-red-500">{errors.interviewDuration.message}</p>
+              <p className="text-sm text-red-500">
+                {errors.interviewDuration.message}
+              </p>
             )}
           </div>
         </div>
@@ -160,7 +341,10 @@ const PostJobPage = () => {
         {/* Description - Full Width */}
         <div className="col-span-2">
           <div className="flex justify-between items-center">
-            <Label htmlFor="description" className="text-gray-700 dark:text-gray-200">
+            <Label
+              htmlFor="jobDescription"
+              className="text-gray-700 dark:text-gray-200"
+            >
               Job Description
             </Label>
             <button
@@ -175,13 +359,15 @@ const PostJobPage = () => {
             </button>
           </div>
           <Textarea
-            id="description"
-            {...register("description")}
+            id="jobDescription"
+            {...register("jobDescription")}
             rows={5}
             className="w-full mt-2 px-3 py-2 border dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded"
           />
-          {errors.description && (
-            <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
+          {errors?.jobDescription && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors?.jobDescription?.message}
+            </p>
           )}
         </div>
 
@@ -213,6 +399,8 @@ const FormField = ({ id, label, register, errors }) => (
       {...register(id)}
       className="w-full px-3 py-2 border dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded"
     />
-    {errors[id] && <p className="text-sm text-red-500 mt-1">{errors[id].message}</p>}
+    {errors[id] && (
+      <p className="text-sm text-red-500 mt-1">{errors[id].message}</p>
+    )}
   </div>
 );
