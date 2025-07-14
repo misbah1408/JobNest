@@ -87,9 +87,9 @@ export async function POST(request) {
 
     // Map frontend field names to schema field names
     const newJob = new JobModel({
-      title: jobTitle,           // Changed from jobTitle
-      description: jobDescription, // Changed from jobDescription
-      company: companyName,      // Changed from companyName
+      jobTitle,           // Changed from jobTitle
+      jobDescription, // Changed from jobDescription
+      companyName,      // Changed from companyName
       location,
       salary: salary || "Not disclosed",
       postedBy: token?._id,

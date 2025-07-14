@@ -13,7 +13,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { applicationSchema } from "@/schema/applicationSchema";
@@ -30,12 +29,14 @@ import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+
 
 const JobCard = ({ job, id }) => {
   const {
-    title,
-    company,
-    description,
+    jobTitle,
+    companyName,
+    jobDescription,
     jobType,
     location,
     salary,
@@ -45,7 +46,7 @@ const JobCard = ({ job, id }) => {
   // console.log(_id);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(false);
-  console.log(id, _id, active);
+  // console.log(id, _id, active);
   const isActive = id === _id;
   const { data: session } = useSession();
   const user = session?.user;
@@ -134,14 +135,14 @@ const JobCard = ({ job, id }) => {
       <div className="flex justify-between items-start">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-400">
-            {title}
+            {jobTitle}
           </h2>
-          <p className="text-gray-600">{company}</p>
+          <p className="text-gray-600">{companyName}</p>
         </div>
         <span className="text-sm text-gray-500">{postedDate}</span>
       </div>
 
-      <p className="text-gray-700 mt-4">{description}</p>
+      <div className="text-gray-700 mt-4 overflow-hidden max-h-20 line-clamp-3"><ReactMarkdown>{jobDescription}</ReactMarkdown></div>
 
       <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
         <span className="bg-gray-100 dark:bg-gray-900 dark:text-gray-400 px-3 py-1 rounded-full">
@@ -159,7 +160,7 @@ const JobCard = ({ job, id }) => {
               <BanknoteX /> Not disclosed{" "}
             </>
           ) : (
-            salary + "/yr"
+            salary
           )}
         </span>
       </div>
@@ -181,8 +182,7 @@ const JobCard = ({ job, id }) => {
           </DialogTrigger>
           <DialogContent className="max-w-[425px] md:w-[600px]">
             <DialogHeader>
-              <DialogTitle>Apply to {company}</DialogTitle>
-              <DialogDescription>{description}</DialogDescription>
+              <DialogTitle>Apply to {jobTitle} at {companyName}</DialogTitle>
             </DialogHeader>
 
             <Form {...form}>

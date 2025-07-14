@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import locations from "../../../utils/location.json";
-import { X } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 // You can replace this with your actual switch component
 const Switch = ({ checked, onChange }) => (
@@ -38,13 +39,13 @@ const PostJobPage = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const user = session?.user;
-  
+
   useEffect(() => {
     if (status === "authenticated" && user?.role !== "employer") {
       router.replace("/dashboard");
     }
   }, [status, user, router]);
-  
+
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -54,9 +55,13 @@ const PostJobPage = () => {
   const handleKeyDown = (e) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      const trimmed = inputValue.trim();
+      const trimmed = inputValue.trim().split(",");
       if (trimmed && !skills.includes(trimmed)) {
-        setSkills([...skills, trimmed]);
+        if (Array.isArray(trimmed)) {
+          setSkills([...skills, ...trimmed]);
+        } else {
+          setSkills([...skills, trimmed]);
+        }
         setInputValue("");
       }
     }
@@ -71,6 +76,7 @@ const PostJobPage = () => {
     handleSubmit,
     control,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(jobSchema),
@@ -92,6 +98,47 @@ const PostJobPage = () => {
   useEffect(() => {
     setValue("skills", skills);
   }, [skills, setValue]);
+
+  const generateWithAI = async () => {
+    const values = getValues();
+    if (
+      !values.jobTitle ||
+      !values.companyName ||
+      !values.jobType ||
+      skills.length < 0
+    ) {
+      toast.error(
+        "Please fill in the required fields before generating the job description."
+      );
+      return;
+    }
+    try {
+      toast("Generating job description...");
+
+      const response = await axios.post("/api/ai/generate-job-description", {
+        jobTitle: values.jobTitle,
+        companyName: values.companyName,
+        jobType: values.jobType,
+        location: city.trim() !== "" ? `${state}, ${city}` : state,
+        salary: values.salary,
+        expiryDate: values.expiryDate, // if available
+        skills: values.skills || [], // assuming it's an array
+      });
+
+      const { description } = response.data;
+      console.log(description);
+
+      if (description) {
+        setValue("jobDescription", description);
+        toast.success("Job description generated!");
+      } else {
+        toast.error("AI response incomplete.");
+      }
+    } catch (error) {
+      console.error("AI Error:", error);
+      toast.error("Failed to generate description.");
+    }
+  };
 
   const onSubmit = async (data) => {
     const payload = {
@@ -227,7 +274,7 @@ const PostJobPage = () => {
               <p className="text-sm text-red-500">{errors.jobType.message}</p>
             )}
           </div>
-          
+
           {/* Location */}
           <div>
             <Label
@@ -240,11 +287,11 @@ const PostJobPage = () => {
               control={control}
               name="location"
               render={({ field }) => (
-                <Select 
+                <Select
                   onValueChange={(value) => {
                     setState(value);
                     field.onChange(value);
-                  }} 
+                  }}
                   value={field.value}
                 >
                   <SelectTrigger className="w-full">
@@ -347,22 +394,21 @@ const PostJobPage = () => {
             >
               Job Description
             </Label>
-            <button
-              type="button"
-              onClick={() => {
-                // TODO: add AI description generation
-                toast("AI generation coming soon!");
-              }}
-              className="text-sm text-blue-600 hover:underline"
+            <Button
+              onClick={() => generateWithAI(getValues(), setValue)}
+              className="text-sm hover:underline"
+              variant={"outline"}
             >
+              <Sparkles />
               Generate with AI
-            </button>
+            </Button>
           </div>
           <Textarea
             id="jobDescription"
             {...register("jobDescription")}
             rows={5}
             className="w-full mt-2 px-3 py-2 border dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded"
+            placeholder="Recommended Generate with Ai"
           />
           {errors?.jobDescription && (
             <p className="text-sm text-red-500 mt-1">

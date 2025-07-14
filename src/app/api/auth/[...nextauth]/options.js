@@ -28,7 +28,7 @@ export const authOptions = {
             ],
           });
           // console.log(user);
-          
+
           if (!user) throw new Error("No user found");
           if (!user.isVerified) throw new Error("Please verify your email");
 
@@ -95,7 +95,7 @@ export const authOptions = {
       } else {
         const dbUser = await UserModel.findOne({ email: token.email });
         // console.log(dbUser);
-        
+
         if (dbUser) {
           token._id = dbUser._id.toString();
           token.username = dbUser.username;
@@ -132,6 +132,10 @@ export const authOptions = {
 
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60,
   },
 
   secret: process.env.NEXTAUTH_SECRET,

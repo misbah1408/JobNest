@@ -1,28 +1,61 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { applicationSchema } from "@/schema/applicationSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { format } from "date-fns";
-import { ArrowLeft, Briefcase, Calendar, Clock, IndianRupee, MapPin } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  Calendar,
+  Clock,
+  IndianRupee,
+  Loader2,
+  MapPin,
+} from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
 
 const Page = () => {
   const [jobDetails, setJobDetails] = useState();
   const params = useParams();
   const jobId = params.jobid;
-  console.log(jobId);
+  const { data: session } = useSession();
+  const user = session?.user;
+  // console.log(jobId);
   const {
     applications,
-    company,
+    companyName,
     createdAt,
-    description,
+    jobDescription,
     jobType,
     location,
     salary,
-    title,
-    expires,
+    jobTitle,
+    expiryDate,
     skills,
   } = jobDetails || {};
 
@@ -32,6 +65,9 @@ const Page = () => {
     const formatted = format(date, "MMMM d, yyyy");
 
     return formatted;
+  };
+  const formatMarkdownWithSpacing = (markdown) => {
+    return markdown.replace(/(\n)?(?=\d\. \*\*)/g, "\n\n");
   };
   const fetchJobDetails = async () => {
     try {
@@ -54,16 +90,95 @@ const Page = () => {
       return null;
     }
   };
+
+  const form = useForm({
+    resolver: zodResolver(applicationSchema),
+    defaultValues: {
+      coverLetter: "",
+      resumeUrl: user?.resumeUrl || null,
+      jobId: jobId || "",
+    },
+  });
+
+  const onSubmit = async (formData) => {
+    const toastId = toast.loading("Application submitting...");
+    console.log(formData);
+
+    try {
+      const applicationPayload = {
+        ...formData,
+        resumeUrl: user?.resumeUrl,
+        jobId: jobId,
+      };
+      console.log(applicationPayload);
+      
+      if (!applicationPayload.resumeUrl) {
+        const uploadPDF = await axios.post(
+          "/api/upload-file",
+          { file: formData.resumeUrl[0] },
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+
+        let resResumeUrl = uploadPDF?.data?.secure_url;
+        applicationPayload.resResumeUrl = resResumeUrl;
+      }
+      console.log(applicationPayload);
+
+      const res = await axios.post("/api/applications", applicationPayload);
+      console.log("Application submitted:", res.data);
+
+      if (res?.data?.message === "Already applied") {
+        toast.dismiss(toastId, { id: toastId });
+        // setOpen(false);
+        return toast.error("You have already applied to this job.");
+      }
+
+      toast.success(
+        res?.data?.message || "Application submitted successfully!",
+        {
+          id: toastId,
+        }
+      );
+      // setOpen(false);
+
+      // Optional: reset form, close modal, etc.
+    } catch (error) {
+      console.error("Submission error:", error);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Something went wrong. Please try again.";
+
+      if (errorMessage === "Already applied") {
+        toast.error("You have already applied to this job.");
+      } else {
+        toast.error(errorMessage, { id: toastId });
+      }
+    }
+  };
   useEffect(() => {
     fetchJobDetails();
   }, []);
+
+  if (!jobDetails || Object.keys(jobDetails).length === 0) {
+    return (
+      <div className="dark:bg-black min-h-screen pt-24 px-4 md:px-8 lg:px-36 flex justify-center items-center">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <span className="ml-2 text-gray-500">Loading job details...</span>
+      </div>
+    );
+  }
   return (
     <div className="dark:bg-black min-h-screen pt-24 px-4 md:px-8 lg:px-36">
       {/* Back Button */}
       <div className="flex items-center mb-8">
         <Link href={"/dashboard/jobs"}>
           <Button variant={"link"} className={"text-sm"}>
-            <ArrowLeft className="w-5 h-5 mr-2 dark:text-white" />
+            <ArrowLeft className="w-5 h-5 dark:text-white" />
             <span className="dark:text-white">Back to job listings</span>
           </Button>
         </Link>
@@ -74,12 +189,12 @@ const Page = () => {
           {/* Main Content - Left Side */}
           <div className="dark:text-white lg:col-span-2">
             {/* Job Title */}
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{jobTitle}</h1>
 
             {/* Company */}
             <div className="flex items-center mb-8">
               <Briefcase className="w-5 h-5 mr-2 text-gray-400" />
-              <span className="text-gray-400">{company}</span>
+              <span className="text-gray-400">{companyName}</span>
             </div>
 
             {/* Job Description Container */}
@@ -89,76 +204,16 @@ const Page = () => {
               {/* Job Title */}
               <div className="mb-6">
                 <p className="text-lg">
-                  {title} at {company}
+                  {jobTitle} at {companyName}
                 </p>
               </div>
 
               {/* About the Company */}
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-3">
-                  1. About the Company
-                </h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Jy Dada is a dynamic and innovative company at the forefront
-                  of{" "}
-                  <span className="text-blue-400 font-medium">
-                    [Insert Jy Dada's Industry/Focus Here - e.g., personalized
-                    healthcare, sustainable energy solutions, cutting-edge
-                    financial technology]
-                  </span>
-                  . We are passionate about leveraging the power of data and
-                  machine learning to{" "}
-                  <span className="text-blue-400 font-medium">
-                    [Insert Jy Dada's Mission/Goal - e.g., revolutionize patient
-                    care, optimize energy consumption, transform financial
-                    decision-making]
-                  </span>
-                  . We foster a collaborative and supportive environment where
-                  creativity and technical excellence are highly valued. We
-                  believe in empowering our employees to learn, grow, and
-                  contribute to meaningful projects that have a real-world
-                  impact. Join us and be a part of shaping the future!
-                </p>
-              </div>
 
-              {/* Job Overview */}
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-3">2. Job Overview</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  We are seeking a highly motivated and skilled Machine Learning
-                  Engineer to join our growing team. In this role, you will be
-                  responsible for designing, developing, deploying, and
-                  maintaining machine learning models that drive our core
-                  business objectives. You will work closely with a team of data
-                  scientists, software engineers, and product managers to build
-                  and implement innovative solutions that leverage the power of
-                  data to solve complex problems. This is an exciting
-                  opportunity to contribute to a rapidly evolving field and make
-                  a significant impact on our company's success.
-                </p>
-              </div>
-
-              {/* Responsibilities */}
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-3">
-                  3. Responsibilities
-                </h3>
-                <div className="text-gray-300 leading-relaxed space-y-3">
-                  <p>
-                    Design, develop, and deploy machine learning models for
-                    various applications, including{" "}
-                    <span className="text-blue-400 font-medium">
-                      [Insert specific examples relevant to Jy Dada's work -
-                      e.g., fraud detection, recommendation systems, predictive
-                      analytics]
-                    </span>
-                    .
-                  </p>
-                  <p>
-                    Collaborate with data scientists to understand project
-                    requirements, data sources, and model objectives.
-                  </p>
-                </div>
+              <div className="prose prose-lg dark:prose-invert max-w-none">
+                <ReactMarkdown>
+                  {formatMarkdownWithSpacing(jobDescription)}
+                </ReactMarkdown>
               </div>
             </div>
           </div>
@@ -186,38 +241,127 @@ const Page = () => {
                 </div>
               </div>
 
-              {expires && (
+              {expiryDate && (
                 <div className="flex items-center">
                   <Clock className="w-5 h-5 mr-3 text-gray-400" />
                   <div>
                     <span className="text-gray-400">Expires: </span>
-                    <span className="dark:text-white">{expires}</span>
+                    <span className="dark:text-white">
+                      {dateFormat(expiryDate)}
+                    </span>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Required Skills */}
-            {skills && <div className="mb-6">
-              <h3 className="dark:text-white font-semibold mb-3">
-                Required Skills
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {skills?.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="bg-gray-800 dark:text-white px-3 py-1 rounded-full text-sm"
-                  >
-                    {skill}
-                  </span>
-                ))}
+            {skills && (
+              <div className="mb-6">
+                <h3 className="dark:text-white font-semibold mb-3">
+                  Required Skills
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {skills?.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="dark:bg-gray-800 dark:text-white px-3 py-1 rounded-full text-sm border border-gray-300 dark:border-gray-600"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>}
+            )}
 
             {/* Apply Button */}
-            <button className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+            {/* <button className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200">
               Apply Now
-            </button>
+            </button> */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200"
+                >
+                  Apply
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-[425px] md:w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>
+                    Apply to {jobTitle} at {companyName}
+                  </DialogTitle>
+                </DialogHeader>
+
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-6"
+                  >
+                    {/* Cover Letter */}
+                    <FormField
+                      name="coverLetter"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Cover Letter</FormLabel>
+                          <FormControl>
+                            <textarea
+                              {...field}
+                              rows={5}
+                              className="w-full border rounded px-3 py-2"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Resume Upload */}
+                    <FormField
+                      name="resumeUrl"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Resume (PDF)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="file"
+                              accept="application/pdf"
+                              onChange={(e) => field.onChange(e.target.files)}
+                            />
+                          </FormControl>
+                          <span className="text-xs font-semibold text-gray-500">
+                            Ignore if you’ve already uploaded your resume.
+                          </span>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <DialogFooter>
+                      <Button
+                        type="submit"
+                        className={`flex items-center justify-center gap-2 transition-all duration-300 ${
+                          form.formState.isSubmitting
+                            ? "cursor-not-allowed opacity-75"
+                            : ""
+                        }`}
+                        disabled={form.formState.isSubmitting}
+                      >
+                        {form.formState.isSubmitting ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin text-white" />
+                            <span>Submitting...</span>
+                          </>
+                        ) : (
+                          <span>Submit Application</span>
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>

@@ -19,6 +19,8 @@ const Page = () => {
       try {
         const res = await axios.get("/api/create-job");
         setJobs(res?.data?.jobs?.reverse() || []);
+        console.log(res.data.jobs.reverse());
+        
       } catch (error) {
         console.error("Failed to fetch jobs", error);
       }
