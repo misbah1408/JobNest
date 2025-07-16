@@ -18,8 +18,8 @@ const ViewApplicantsPage = () => {
   const [topApplicantIds, setTopApplicantIds] = useState([]);
   const [aiAnalysisResults, setAiAnalysisResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const searchParams = useSearchParams();
-  const jobDescription = searchParams.get("description") || ""; 
+  const [jobDetails, setJobDetails] = useState();
+  const [isOpen, setIsOpen] = useState();
 
   useEffect(() => {
     const fetchApplicants = async () => {
@@ -32,8 +32,31 @@ const ViewApplicantsPage = () => {
       }
     };
 
+    
+    const fetchJobDetails = async () => {
+      try {
+        const response = await axios.get(`/api/create-job/${jobId}`);
+        
+        // Access response data
+        const data = response.data;
+        console.log(data.data);
+        
+        if (data.success) {
+          setJobDetails(data.data);
+        } else {
+          console.error("Job not found or other error:", data.message);
+        }
+      } catch (error) {
+        console.error(
+          "Error fetching job details:",
+          error.response?.data?.message || error.message
+        );
+        return null;
+      }
+    };
     if (jobId) {
       fetchApplicants();
+      fetchJobDetails();
     }
   }, [jobId]);
 
@@ -65,7 +88,7 @@ const ViewApplicantsPage = () => {
           resumeUrl: app?.resumeUrl,
           coverLetter: app.coverLetter,
         })),
-        jobDescription: jobDescription,
+        jobDescription: jobDetails.jobDescription,
       });
   
       const ids = response.data.topApplicants
@@ -90,11 +113,11 @@ const ViewApplicantsPage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-10 max-w-4xl">
+    <div className="container mx-auto px-4 py-10 max-w-4xl mt-[90px]">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">Applicant AI Analyzer</h1>
         <p className="text-gray-600 mb-4">
-          Reviewing applicants for: <span className="font-medium">{jobDescription}</span>
+          Reviewing applicants for: <span className="font-medium">{jobDetails?.jobTitle} at {jobDetails?.companyName}</span>
         </p>
         <Button
           className="bg-green-600 hover:bg-green-700 text-white font-medium"
@@ -161,9 +184,9 @@ const ViewApplicantsPage = () => {
   
                 <div>
                   <label className="block font-medium mb-1">Resume</label>
-                  <div className="border rounded-md p-3 text-sm bg-gray-50">
+                  <div className="border rounded-md p-3 text-sm bg-gray-50" onClick={()=> setIsOpen(true)}>
                     {applicant.resumeUrl ? (
-                      <ResumeViewer url={applicant.resumeUrl} />
+                      <ResumeViewer applicant={applicant} isOpen={isOpen} setIsOpen={setIsOpen}/>
                     ) : (
                       "No resume provided"
                     )}

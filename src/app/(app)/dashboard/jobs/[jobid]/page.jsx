@@ -30,6 +30,7 @@ import {
   IndianRupee,
   Loader2,
   MapPin,
+  Users2,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -45,7 +46,7 @@ const Page = () => {
   const jobId = params.jobid;
   const { data: session } = useSession();
   const user = session?.user;
-  // console.log(jobId);
+  console.log(user);
   const {
     applications,
     companyName,
@@ -57,6 +58,7 @@ const Page = () => {
     jobTitle,
     expiryDate,
     skills,
+    applicants,
   } = jobDetails || {};
 
   const dateFormat = (dateAt) => {
@@ -111,7 +113,7 @@ const Page = () => {
         jobId: jobId,
       };
       console.log(applicationPayload);
-      
+
       if (!applicationPayload.resumeUrl) {
         const uploadPDF = await axios.post(
           "/api/upload-file",
@@ -227,7 +229,10 @@ const Page = () => {
             </div>
             <div className="flex items-center mb-6">
               <IndianRupee className="w-5 h-5 mr-3 text-gray-400" />
-              <span className="text-lg font-medium">{salary}</span>
+              <div>
+                <span className="text-gray-400">Salary: </span>
+                <span className="text-lg font-medium">{salary}</span>
+              </div>
             </div>
             {/* Date Information */}
             <div className="space-y-3 mb-6">
@@ -253,7 +258,15 @@ const Page = () => {
                 </div>
               )}
             </div>
-
+            <div className="flex items-center mb-3">
+              <Users2 className="w-5 h-5 mr-3 text-gray-400" />
+              {applicants.length > 0 && 
+              <div>
+                <span className="text-gray-400">No of Applicants: </span>
+                <span className="dark:text-white text-xl">{applicants.length}</span>
+              </div>
+              }
+            </div>
             {/* Required Skills */}
             {skills && (
               <div className="mb-6">
@@ -279,11 +292,18 @@ const Page = () => {
             </button> */}
             <Dialog>
               <DialogTrigger asChild>
-                <Button
-                  className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200"
-                >
-                  Apply
-                </Button>
+                {!applicants.includes(user._id) ? (
+                  <Button className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+                    Apply
+                  </Button>
+                ) : (
+                  <Button
+                    disabled={true}
+                    className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200 cursor-not-allowed"
+                  >
+                    Already Applied
+                  </Button>
+                )}
               </DialogTrigger>
               <DialogContent className="max-w-[425px] md:w-[600px]">
                 <DialogHeader>

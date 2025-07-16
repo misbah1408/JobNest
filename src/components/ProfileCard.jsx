@@ -8,14 +8,17 @@ import EditProfile from "./EditProfile";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import ResumeViewer from "./ResumeViewer";
 
 const ProfileCard = ({ data }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [currentUserValid, setCurrentUserValid] = useState(false);
+  const [isOpen, setIsOpen] = useState();
   const { data: session } = useSession();
   const user = session?.user;
-
-  const { email, isVerified, name, role, username, _id, image } = data || {};
+  // console.log(user);
+  
+  const { email, isVerified, name, role, username, _id, image, resumeUrl } = user || {};
   // console.log(image);
 
   useEffect(() => {
@@ -77,12 +80,11 @@ const ProfileCard = ({ data }) => {
             </div>
           )}
           <div>
-            {data?.resumeUrl ? (
-              <Link href={data.resumeUrl} target="_blank">
-                <Button variant="link" className="hover:text-blue-500">
-                  View resume <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
+            {user?.resumeUrl ? (
+              <div onClick={()=>setIsOpen(true)}>
+                <ResumeViewer name={name} resumeUrl={resumeUrl} isOpen={isOpen} setIsOpen={setIsOpen}/>
+
+              </div>
             ) : currentUserValid ? (
               <Button
                 variant="link"

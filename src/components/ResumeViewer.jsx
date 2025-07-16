@@ -1,50 +1,53 @@
 import { useState } from "react";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, ExternalLink, Loader2, X } from "lucide-react";
 import PDFViewer from "./PDFViewer"; // Adjust path if needed
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "./ui/button";
+import Link from "next/link";
 
-export default function ResumeViewer({ applicant }) {
+export default function ResumeViewer({ name, resumeUrl, isOpen, setIsOpen }) {
   const [showModal, setShowModal] = useState(false);
-  
+  // console.log(applicant);
+// name, resumeUrl
   return (
     <>
-      <button
+      <Button variant={'link'}
         className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
         onClick={() => {
           setShowModal(true);
         }}
       >
         View resume <ArrowRight className="h-4 w-4" />
-      </button>
+      </Button>
 
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-gray-400   bg-opacity-50 flex items-center justify-center px-4">
-          <div className="bg-white rounded-xl shadow-lg w-[50%] max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
-            {/* Header */}
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-lg font-semibold">
-                {applicant.user.name}'s Resume
-              </h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-500 hover:text-black"
-              >
-                ✕
-              </button>
-              
-            </div>
+      <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
+        <DialogContent className="md:max-w-fit max-h-[650px] overflow-hidden flex flex-col">
+          <DialogHeader className="flex justify-between items-center border-b p-4">
+            <DialogTitle>{name}'s Resume</DialogTitle>
+          </DialogHeader>
 
-            {/* Content */}
-            <div className="overflow-y-auto p-4 flex-grow">
-              <PDFViewer url={applicant.resumeUrl} />
-            </div>
-
-            {/* Footer (optional) */}
-            <div className="p-4 border-t text-right">
-              {/* Add action buttons if needed */}
-            </div>
+          <div className="overflow-y-auto p-4 flex-grow">
+            <PDFViewer url={resumeUrl} />
           </div>
-        </div>
-      )}
+
+          {/* Optional Footer */}
+          <div className="border-t p-4 text-center">
+            {/* Add action buttons if needed */}
+            <Link href={resumeUrl} target="_blank">
+              <Button variant={"outline"}>
+                View Full <ExternalLink />
+              </Button>
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

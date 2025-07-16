@@ -20,7 +20,6 @@ export async function POST(request) {
     // Validate required fields
     // console.log(resumeUrl, jobId, coverLetter);
     console.log(resumeUrl);
-    
 
     if (!resumeUrl || !jobId) {
       return new Response(
@@ -50,13 +49,13 @@ export async function POST(request) {
     });
 
     await newApplication.save();
-    await JobModel.findByIdAndUpdate(
-      {_id: jobId},
-      { $inc: { applications: 1 }},
-    { new: true }
-    );
+    await JobModel.findByIdAndUpdate(jobId, {
+      $addToSet: { applicants: userId },
+      $inc: { applications: 1 },
+    });
+
     // console.log(application);
-    
+
     return NextResponse.json(
       {
         success: true,
@@ -70,7 +69,6 @@ export async function POST(request) {
       },
       { status: 201 }
     );
-    
   } catch (error) {
     console.error("Error in application route: ", error.message);
     return new Response(

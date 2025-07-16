@@ -17,19 +17,19 @@ import {
   MenubarTrigger,
 } from "./ui/menubar";
 
-import { Moon, Sun } from "lucide-react"
-import { useTheme } from "next-themes"
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
+} from "./ui/dropdown-menu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
-  const { setTheme } = useTheme()
+  const { setTheme } = useTheme();
   const user = session?.user;
   // console.log(user);
   const isJobSeeker = user?.role === "job_seeker";
@@ -50,17 +50,23 @@ const Navbar = () => {
           <Link href="/dashboard">
             <div className="flex items-center">
               <Image src={logo} alt="Logo" className="h-16 w-16" />
-              <span className="text-xl font-bold">JobNest</span>
+              <span className="font-bold hidden md:block">JobNest</span>
             </div>
           </Link>
           <div className="hidden md:flex text-white">
             <Link href={primaryLink}>
-              <Button variant="link" className={"text-black text-lg dark:text-white"}>
+              <Button
+                variant="link"
+                className={"text-black text-lg dark:text-white"}
+              >
                 {primaryLabel}
               </Button>
             </Link>
             <Link href={secondaryLink}>
-              <Button variant="link" className={"text-black text-lg dark:text-white"}>
+              <Button
+                variant="link"
+                className={"text-black text-lg dark:text-white"}
+              >
                 {secondaryLabel}
               </Button>
             </Link>
@@ -69,7 +75,11 @@ const Navbar = () => {
             <div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className={"rounded-full"}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className={"rounded-full"}
+                  >
                     <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
                     <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
                     <span className="sr-only">Toggle theme</span>
@@ -109,9 +119,13 @@ const Navbar = () => {
                     <MenubarItem>View Profile</MenubarItem>
                   </Link>
 
-                  <MenubarItem>New Window</MenubarItem>
-                  <MenubarSeparator />
-                  <MenubarItem>Share</MenubarItem>
+                  <MenubarSeparator className={"md:hidden"}/>
+                  <Link href={isJobSeeker ? `/dashboard/jobs` :  `/dashboard/post-job`} className="md:hidden">
+                    <MenubarItem>{isJobSeeker ? "Jobs" : "Post a Job"}</MenubarItem>
+                  </Link>
+                  <Link href={isJobSeeker ? `/dashboard/my-applications` : `/dashboard/employer`} className="md:hidden">
+                    <MenubarItem>{isJobSeeker ? "My Applications":"Employer Dashboard"}</MenubarItem>
+                  </Link>
                   <MenubarSeparator />
                   <MenubarItem onClick={() => signOut()}>
                     Sign out <LogOut size={16} />

@@ -24,13 +24,12 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { BanknoteX, Loader2 } from "lucide-react";
+import { Banknote, BanknoteX, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
-
 
 const JobCard = ({ job, id }) => {
   const {
@@ -42,10 +41,11 @@ const JobCard = ({ job, id }) => {
     salary,
     createdAt,
     _id,
+    applicants,
   } = job || {};
   // console.log(_id);
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(false);
+  // const [active, setActive] = useState(false);
   // console.log(id, _id, active);
   const isActive = id === _id;
   const { data: session } = useSession();
@@ -119,10 +119,10 @@ const JobCard = ({ job, id }) => {
     }
   };
 
-  useEffect(() => {
-    setActive(id === _id);
-    console.log(id);
-  }, []);
+  // useEffect(() => {
+  //   setActive(id === user._id);
+  //   console.log(id);
+  // }, []);
 
   const postedDate = formatDistanceToNow(new Date(createdAt), {
     addSuffix: true,
@@ -142,7 +142,9 @@ const JobCard = ({ job, id }) => {
         <span className="text-sm text-gray-500">{postedDate}</span>
       </div>
 
-      <div className="text-gray-700 mt-4 overflow-hidden max-h-20 line-clamp-3"><ReactMarkdown>{jobDescription}</ReactMarkdown></div>
+      <div className="text-gray-700 mt-4 overflow-hidden max-h-20 line-clamp-3">
+        <ReactMarkdown>{jobDescription}</ReactMarkdown>
+      </div>
 
       <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
         <span className="bg-gray-100 dark:bg-gray-900 dark:text-gray-400 px-3 py-1 rounded-full">
@@ -160,29 +162,44 @@ const JobCard = ({ job, id }) => {
               <BanknoteX /> Not disclosed{" "}
             </>
           ) : (
-            salary
+            <>
+              <Banknote />
+              {salary}
+            </>
           )}
         </span>
       </div>
 
       <div className="absolute bottom-5 right-5">
         <Link href={`/dashboard/jobs/${_id}`}>
-        <Button variant="link" className="cursor-pointer mr-1">
-          Details
-        </Button>
+          <Button variant="link" className="cursor-pointer mr-1">
+            Details
+          </Button>
         </Link>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              className="cursor-pointer hover:bg-green-200"
-            >
-              Apply
-            </Button>
+            {!applicants.includes(user._id) ? (
+              <Button
+                variant="outline"
+                className="cursor-pointer hover:bg-green-200"
+              >
+                Apply
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                disabled={true}
+                className="hover:bg-green-200 cursor-not-allowed"
+              >
+                Already applied
+              </Button>
+            )}
           </DialogTrigger>
           <DialogContent className="max-w-[425px] md:w-[600px]">
             <DialogHeader>
-              <DialogTitle>Apply to {jobTitle} at {companyName}</DialogTitle>
+              <DialogTitle>
+                Apply to {jobTitle} at {companyName}
+              </DialogTitle>
             </DialogHeader>
 
             <Form {...form}>
