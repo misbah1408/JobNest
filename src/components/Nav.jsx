@@ -20,7 +20,7 @@ const Nav = () => {
               {/* Logo */}
               <Link href="/dashboard">
                 <div className="flex items-center">
-                  <Image src={"/logo.png"} alt="Logo" height={64} width={64} />
+                  <Image src={"/logo.png"} alt="Logo" height={64} width={64} priority={true}/>
                   <span className=" hidden md:flex text-xl font-bold">JobNest</span>
                 </div>
               </Link>

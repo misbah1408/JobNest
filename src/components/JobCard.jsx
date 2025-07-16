@@ -146,7 +146,7 @@ const JobCard = ({ job, id }) => {
         <ReactMarkdown>{jobDescription}</ReactMarkdown>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
+      <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600 max-w-[250px] md:max-w-full">
         <span className="bg-gray-100 dark:bg-gray-900 dark:text-gray-400 px-3 py-1 rounded-full">
           {jobType}
         </span>
@@ -178,7 +178,7 @@ const JobCard = ({ job, id }) => {
         </Link>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            {!applicants.includes(user._id) ? (
+            {!applicants.includes(user?._id) ? (
               <Button
                 variant="outline"
                 className="cursor-pointer hover:bg-green-200"

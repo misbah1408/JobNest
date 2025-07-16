@@ -6,28 +6,28 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   await dbConnect();
   const token = await getToken({ req: request });
-  
+
   if (token.role !== "employer") {
     return new Response("Unauthorized", { status: 401 });
   }
 
   try {
     const data = await request.json();
-    const { 
-      jobTitle, 
-      jobDescription, 
-      companyName, 
-      location, 
-      salary, 
+    const {
+      jobTitle,
+      jobDescription,
+      companyName,
+      location,
+      salary,
       jobType,
       skills,
       jobStatus,
       expiryDate,
-      interviewDuration
+      interviewDuration,
     } = data || {};
-    
+
     console.log(data);
-      
+
     // Validate required fields
     if (
       !jobTitle ||
@@ -41,9 +41,10 @@ export async function POST(request) {
       !interviewDuration
     ) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: "Missing required fields. Please ensure all fields are filled including skills, expiry date, and interview duration." 
+        JSON.stringify({
+          success: false,
+          message:
+            "Missing required fields. Please ensure all fields are filled including skills, expiry date, and interview duration.",
         }),
         { status: 400 }
       );
@@ -53,9 +54,9 @@ export async function POST(request) {
     const expiryDateObj = new Date(expiryDate);
     if (expiryDateObj <= new Date()) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: "Expiry date must be in the future" 
+        JSON.stringify({
+          success: false,
+          message: "Expiry date must be in the future",
         }),
         { status: 400 }
       );
@@ -65,9 +66,10 @@ export async function POST(request) {
     const validJobTypes = ["Full-time", "Part-time", "Remote", "Internship"];
     if (!validJobTypes.includes(jobType)) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: "Invalid job type. Must be one of: Full-time, Part-time, Remote, Internship" 
+        JSON.stringify({
+          success: false,
+          message:
+            "Invalid job type. Must be one of: Full-time, Part-time, Remote, Internship",
         }),
         { status: 400 }
       );
@@ -77,9 +79,10 @@ export async function POST(request) {
     const validDurations = ["5m", "10m", "15m", "30m", "60m"];
     if (!validDurations.includes(interviewDuration)) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: "Invalid interview duration. Must be one of: 5m, 10m, 15m, 30m, 60m" 
+        JSON.stringify({
+          success: false,
+          message:
+            "Invalid interview duration. Must be one of: 5m, 10m, 15m, 30m, 60m",
         }),
         { status: 400 }
       );
@@ -87,9 +90,9 @@ export async function POST(request) {
 
     // Map frontend field names to schema field names
     const newJob = new JobModel({
-      jobTitle,           // Changed from jobTitle
+      jobTitle, // Changed from jobTitle
       jobDescription, // Changed from jobDescription
-      companyName,      // Changed from companyName
+      companyName, // Changed from companyName
       location,
       salary: salary || "Not disclosed",
       postedBy: token?._id,
@@ -108,7 +111,7 @@ export async function POST(request) {
         message: "New job created successfully",
         data: {
           id: newJob._id,
-          jobTitle: newJob.title,        // Map back to frontend field names
+          jobTitle: newJob.title, // Map back to frontend field names
           jobDescription: newJob.description,
           companyName: newJob.company,
           location: newJob.location,
@@ -126,10 +129,12 @@ export async function POST(request) {
     );
   } catch (error) {
     console.error("Error in create-job route: ", error.message);
-    
+
     // Handle mongoose validation errors
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => err.message);
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map(
+        (err) => err.message
+      );
       return new Response(
         JSON.stringify({
           success: false,
@@ -163,6 +168,35 @@ export async function GET(request) {
   }
 
   try {
+    if (token.role === "job_seeker") {
+      try {
+        const jobs = await JobModel.find();
+        // console.log(jobs);
+        if (!jobs) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "No jobs found",
+            },
+            { status: 404 }
+          );
+        }
+        return NextResponse.json(
+          {
+            success: true,
+            message: "Jobs fetched successfully",
+            jobs,
+          },
+          { status: 200 }
+        );
+      } catch (error) {
+        console.error("Error in fetching jobs: ", error.message);
+        return NextResponse.json(
+          { error: "Error in fetching jobs" },
+          { status: 500 }
+        );
+      }
+    }
     const { searchParams } = new URL(request.url);
     const postedBy = searchParams.get("postedBy");
     const active = searchParams.get("active");
@@ -176,42 +210,44 @@ export async function GET(request) {
 
     // Build filter object
     const filter = {};
-    
+
     if (postedBy) {
       filter.postedBy = postedBy;
     }
-    
+
     if (active === "true") {
       filter.isActive = true;
       filter.jobStatus = true;
       filter.expiryDate = { $gt: new Date() };
     }
-    
+
     if (jobType) {
       filter.jobType = jobType;
     }
-    
+
     if (location) {
-      filter.location = { $regex: location, $options: 'i' };
+      filter.location = { $regex: location, $options: "i" };
     }
-    
+
     if (skills) {
-      const skillsArray = skills.split(',').map(skill => skill.trim());
+      const skillsArray = skills.split(",").map((skill) => skill.trim());
       filter.skills = { $in: skillsArray };
     }
 
     // Calculate pagination
     const skip = (page - 1) * limit;
-    const sortOrder = order === 'desc' ? -1 : 1;
+    const sortOrder = order === "desc" ? -1 : 1;
     const sortObj = { [sort]: sortOrder };
 
     // Execute query with pagination
-    const jobs = await JobModel.find(filter)
-      .populate('postedBy', 'name email')
-      .sort(sortObj)
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    // const jobs = await JobModel.find(filter)
+    //   .populate('postedBy', 'name email')
+    //   .sort(sortObj)
+    //   .skip(skip)
+    //   .limit(limit)
+    //   .lean();
+    const jobs = await JobModel.find({ postedBy });
+    console.log(jobs);
 
     // Get total count for pagination
     const totalJobs = await JobModel.countDocuments(filter);
@@ -219,33 +255,33 @@ export async function GET(request) {
 
     if (!jobs || jobs.length === 0) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           message: "No jobs found",
           pagination: {
             currentPage: page,
             totalPages: 0,
             totalJobs: 0,
             hasNext: false,
-            hasPrev: false
-          }
+            hasPrev: false,
+          },
         },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { 
-        success: true, 
-        message: "Jobs fetched successfully", 
+      {
+        success: true,
+        message: "Jobs fetched successfully",
         jobs,
         pagination: {
           currentPage: page,
           totalPages,
           totalJobs,
           hasNext: page < totalPages,
-          hasPrev: page > 1
-        }
+          hasPrev: page > 1,
+        },
       },
       { status: 200 }
     );
@@ -261,7 +297,7 @@ export async function GET(request) {
 export async function PUT(request) {
   await dbConnect();
   const token = await getToken({ req: request });
-  
+
   if (!token) {
     return NextResponse.json(
       { success: false, message: "Unauthorized" },
@@ -297,25 +333,26 @@ export async function PUT(request) {
     }
 
     // Update the job
-    const updatedJob = await JobModel.findByIdAndUpdate(
-      jobId,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedJob = await JobModel.findByIdAndUpdate(jobId, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     return NextResponse.json(
       {
         success: true,
         message: "Job updated successfully",
-        data: updatedJob
+        data: updatedJob,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error in updating job: ", error.message);
-    
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map(err => err.message);
+
+    if (error.name === "ValidationError") {
+      const validationErrors = Object.values(error.errors).map(
+        (err) => err.message
+      );
       return NextResponse.json(
         {
           success: false,
@@ -336,7 +373,7 @@ export async function PUT(request) {
 export async function DELETE(request) {
   await dbConnect();
   const token = await getToken({ req: request });
-  
+
   if (!token) {
     return NextResponse.json(
       { success: false, message: "Unauthorized" },

@@ -5,8 +5,11 @@ import axios from "axios";
 import JobCard from "@/components/JobCard";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const Page = () => {
+  const { data: session } = useSession();
+  const user = session?.user;
   const [jobs, setJobs] = useState([]);
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -18,14 +21,16 @@ const Page = () => {
     const fetchJobs = async () => {
       try {
         const res = await axios.get("/api/create-job");
+        console.log(res);
+        
         setJobs(res?.data?.jobs?.reverse() || []);
         console.log(res.data.jobs.reverse());
-        
       } catch (error) {
         console.error("Failed to fetch jobs", error);
       }
     };
     fetchJobs();
+
   }, []);
 
   // Debounce the query input
@@ -73,7 +78,7 @@ const Page = () => {
           <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
             {filteredJobs.map((job) => (
               <div
-                key={job._id}
+                key={job?._id}
                 className="px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-900 cursor-pointer transition-colors"
                 onClick={() => setQuery(job.title)}
               >
@@ -91,7 +96,7 @@ const Page = () => {
       </div>
       <div className="mt-6 space-y-4">
         {filteredJobs.map((job) => (
-          <JobCard key={job._id} job={job} />
+          <JobCard key={job?._id} job={job} />
         ))}
       </div>
     </div>
