@@ -240,14 +240,14 @@ export async function GET(request) {
     const sortObj = { [sort]: sortOrder };
 
     // Execute query with pagination
-    // const jobs = await JobModel.find(filter)
-    //   .populate('postedBy', 'name email')
-    //   .sort(sortObj)
-    //   .skip(skip)
-    //   .limit(limit)
-    //   .lean();
-    const jobs = await JobModel.find({ postedBy });
-    console.log(jobs);
+    const jobs = await JobModel.find(filter)
+      .populate('postedBy', 'name email')
+      .sort(sortObj)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+    // const jobs = await JobModel.find({ postedBy });
+    // // console.log(jobs);
 
     // Get total count for pagination
     const totalJobs = await JobModel.countDocuments(filter);
@@ -298,7 +298,7 @@ export async function PUT(request) {
   await dbConnect();
   const token = await getToken({ req: request });
 
-  if (!token) {
+  if (!token.role === 'employer') {
     return NextResponse.json(
       { success: false, message: "Unauthorized" },
       { status: 401 }
@@ -308,7 +308,8 @@ export async function PUT(request) {
   try {
     const data = await request.json();
     const { jobId, ...updateData } = data;
-
+    console.log(data);
+    
     if (!jobId) {
       return NextResponse.json(
         { success: false, message: "Job ID is required" },
@@ -325,18 +326,13 @@ export async function PUT(request) {
       );
     }
 
-    if (job.postedBy.toString() !== token.sub && token.role !== "admin") {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized to update this job" },
-        { status: 403 }
-      );
-    }
-
     // Update the job
-    const updatedJob = await JobModel.findByIdAndUpdate(jobId, updateData, {
+    const updatedJob = await JobModel.findByIdAndUpdate({_id: jobId, updateData}, {
       new: true,
       runValidators: true,
     });
+    console.log(updatedJob);
+    
 
     return NextResponse.json(
       {
@@ -373,8 +369,9 @@ export async function PUT(request) {
 export async function DELETE(request) {
   await dbConnect();
   const token = await getToken({ req: request });
-
-  if (!token) {
+  // console.log(token);
+  
+  if (!token.role === 'employer') {
     return NextResponse.json(
       { success: false, message: "Unauthorized" },
       { status: 401 }
@@ -384,7 +381,8 @@ export async function DELETE(request) {
   try {
     const { searchParams } = new URL(request.url);
     const jobId = searchParams.get("jobId");
-
+    console.log(jobId);
+    
     if (!jobId) {
       return NextResponse.json(
         { success: false, message: "Job ID is required" },
@@ -398,13 +396,6 @@ export async function DELETE(request) {
       return NextResponse.json(
         { success: false, message: "Job not found" },
         { status: 404 }
-      );
-    }
-
-    if (job.postedBy.toString() !== token.sub && token.role !== "admin") {
-      return NextResponse.json(
-        { success: false, message: "Unauthorized to delete this job" },
-        { status: 403 }
       );
     }
 

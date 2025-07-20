@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -10,14 +10,46 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { formatDate } from "date-fns";
 import { Badge } from "./ui/badge";
-import { Edit, Eye, LinkIcon, LucideView, Trash2 } from "lucide-react";
+import { Edit, Eye, LinkIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { Button } from "./ui/button";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import EditJob from "./EditJob";
 
 const PostedJobs = ({ jobs }) => {
-  console.log(jobs);
+  // console.log(jobs);
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+  const handleDelete = async (jobId) => {
+    try {
+      const response = await axios.delete(`/api/create-job/?jobId=${jobId}`);
+
+      if (response.status === 200) {
+        toast.success("Job deleted successfully.");
+        router.refresh()
+      } else {
+        toast.error("Failed to delete the job. Please try again.");
+      }
+    } catch (error) {
+      toast.error("An error occurred while deleting the job.");
+      console.error(error);
+    }
+  };
 
   return (
     <div className="space-y-4 rounded-2xl">
@@ -103,25 +135,38 @@ const PostedJobs = ({ jobs }) => {
                 <Link href={`/job/${job._id}`} title="View Job">
                   <Eye size={16} />
                 </Link>
-                <Link href={`/dashboard/edit/${job._id}`} title="Edit">
-                  <Edit size={16} />
-                </Link>
-                <button
-                  title="Delete Job"
-                  onClick={() => handleDelete(job._id)}
-                >
-                  <Trash2 size={16} />
+                <button title="Edit" onClick={()=>setIsOpen(true)}>
+                  <EditJob data={job} isOpen={isOpen} setIsOpen={setIsOpen}/>
                 </button>
+                <AlertDialog className={"m-0 p-0"}>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="none">
+                      <Trash2 size={16} />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete the job posting and remove all related data from
+                        our servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(job._id)}>
+                        Continue
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
-        {/* <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
-        </TableRow>
-      </TableFooter> */}
       </Table>
     </div>
   );

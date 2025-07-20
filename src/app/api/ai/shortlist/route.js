@@ -43,7 +43,7 @@ export async function POST(req) {
 
         // console.log(processedApplicants);
         const atsApplicants = await getShortlistDecisions(processedApplicants, jobDescription)
-        console.log(atsApplicants);
+        // console.log(atsApplicants);
         
         // After processing, return the response to the client
         return NextResponse.json({

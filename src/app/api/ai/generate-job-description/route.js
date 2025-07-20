@@ -12,15 +12,7 @@ export async function POST(req) {
     expiryDate,
     skills,
   } = await req.json();
-  console.log(
-    jobTitle,
-    companyName,
-    jobType,
-    location,
-    salary,
-    expiryDate,
-    skills
-  );
+
 
   const prompt = `
 You are an expert recruiter. Using the following job details, generate a professional job description in the exact format below:
