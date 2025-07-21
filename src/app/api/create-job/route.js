@@ -26,7 +26,7 @@ export async function POST(request) {
       interviewDuration,
     } = data || {};
 
-    console.log(data);
+    // console.log(data);
 
     // Validate required fields
     if (
@@ -241,7 +241,7 @@ export async function GET(request) {
 
     // Execute query with pagination
     const jobs = await JobModel.find(filter)
-      .populate('postedBy', 'name email')
+      .populate("postedBy", "name email")
       .sort(sortObj)
       .skip(skip)
       .limit(limit)
@@ -298,7 +298,7 @@ export async function PUT(request) {
   await dbConnect();
   const token = await getToken({ req: request });
 
-  if (!token.role === 'employer') {
+  if (!token.role === "employer") {
     return NextResponse.json(
       { success: false, message: "Unauthorized" },
       { status: 401 }
@@ -307,9 +307,10 @@ export async function PUT(request) {
 
   try {
     const data = await request.json();
-    const { jobId, ...updateData } = data;
-    console.log(data);
-    
+    const { jobId } = data;
+    // console.log(data["updatedData"]);
+    let updateData = data["updatedData"];
+    updateData.isActive = updateData.jobStatus;
     if (!jobId) {
       return NextResponse.json(
         { success: false, message: "Job ID is required" },
@@ -327,12 +328,10 @@ export async function PUT(request) {
     }
 
     // Update the job
-    const updatedJob = await JobModel.findByIdAndUpdate({_id: jobId, updateData}, {
+    const updatedJob = await JobModel.findByIdAndUpdate(jobId, updateData, {
       new: true,
-      runValidators: true,
     });
-    console.log(updatedJob);
-    
+    // console.log(updatedJob);
 
     return NextResponse.json(
       {
@@ -370,8 +369,8 @@ export async function DELETE(request) {
   await dbConnect();
   const token = await getToken({ req: request });
   // console.log(token);
-  
-  if (!token.role === 'employer') {
+
+  if (!token.role === "employer") {
     return NextResponse.json(
       { success: false, message: "Unauthorized" },
       { status: 401 }
@@ -381,8 +380,8 @@ export async function DELETE(request) {
   try {
     const { searchParams } = new URL(request.url);
     const jobId = searchParams.get("jobId");
-    console.log(jobId);
-    
+    // console.log(jobId);
+
     if (!jobId) {
       return NextResponse.json(
         { success: false, message: "Job ID is required" },

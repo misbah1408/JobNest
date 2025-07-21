@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Table,
   TableBody,
@@ -31,10 +31,9 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import EditJob from "./EditJob";
 
-const PostedJobs = ({ jobs }) => {
+const PostedJobs = ({ jobs, onSuccess}) => {
   // console.log(jobs);
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
   const handleDelete = async (jobId) => {
     try {
       const response = await axios.delete(`/api/create-job/?jobId=${jobId}`);
@@ -135,8 +134,8 @@ const PostedJobs = ({ jobs }) => {
                 <Link href={`/job/${job._id}`} title="View Job">
                   <Eye size={16} />
                 </Link>
-                <button title="Edit" onClick={()=>setIsOpen(true)}>
-                  <EditJob data={job} isOpen={isOpen} setIsOpen={setIsOpen}/>
+                <button title="Edit">
+                  <EditJob data={job} onSuccess={onSuccess}/>
                 </button>
                 <AlertDialog className={"m-0 p-0"}>
                   <AlertDialogTrigger asChild>

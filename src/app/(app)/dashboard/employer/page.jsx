@@ -46,11 +46,14 @@ const EmployerDashboard = () => {
   return (
     <div className="w-full mt-[90px] p-6 flex flex-col items-center">
       {/* <h2 className="text-2xl font-semibold mb-6">Employer Dashboard</h2> */}
-      <div>
-
+      <div className="w-[95%] py-5">
+        <div>
+          <h1 className="text-2xl font-semibold">Job Management</h1>
+          <span>Manage your job listings</span>
+        </div>
       </div>
       <div className="w-[95%]">
-          <PostedJobs jobs={data} />
+          <PostedJobs jobs={data} onSuccess={fetchApplications}/>
       </div>
     </div>
   );

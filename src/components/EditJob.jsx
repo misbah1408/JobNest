@@ -1,3 +1,5 @@
+'use client'
+
 import { Edit, Sparkles, Trash2, X } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -30,10 +32,11 @@ import {
 } from "./ui/select";
 import { useRouter } from "next/navigation";
 
-const durations = ["5m", "10m", "15m","20m", "30m", "60m"];
+const durations = ["5m", "10m", "15m", "20m", "30m", "60m"];
 const jobType = ["Full-time", "Part-time", "Remote", "Internship"];
 
-const EditJob = ({ data, isOpen, setIsOpen }) => {
+const EditJob = ({ data, onSuccess}) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [state, setState] = useState("");
   const [city, setCity] = useState("");
   const [inputValue, setInputValue] = useState("");
@@ -88,17 +91,19 @@ const EditJob = ({ data, isOpen, setIsOpen }) => {
         skills,
         location: city ? `${state}, ${city}` : state,
       };
+      if (updatedData.location == "") updatedData.location = data.location;
       const res = await axios.put(`/api/create-job`, {
         jobId: data._id,
-        updatedData
-    });
-      if(res.status==200){
+        updatedData,
+      });
+
+      if (res.status == 200) {
+        setIsOpen(false);
+        await onSuccess();
         toast.success("Job updated successfully!");
-        router.refresh();
-      }else{
+      } else {
         toast.error("Failed to update job");
       }
-      setIsOpen(false);
     } catch (error) {
       toast.error("Failed to update job");
     }
@@ -141,9 +146,12 @@ const EditJob = ({ data, isOpen, setIsOpen }) => {
       toast.error("Failed to generate description.");
     }
   };
-  
+
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <DialogTrigger asChild>
         <span>
           <Edit size={16} className="cursor-pointer" />
@@ -208,13 +216,13 @@ const EditJob = ({ data, isOpen, setIsOpen }) => {
                 onKeyDown={handleKeyDown}
               />
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {skills.map((skill, i) => (
                   <span
                     key={i}
-                    className="flex items-center bg-blue-500 p-1 text-sm rounded-full text-white"
+                    className="flex items-center bg-blue-500 p-1 px-2 text-[12px] rounded-full text-white"
                   >
-                    {skill}{" "}
+                    {skill}
                     <X
                       className="w-4 h-4 cursor-pointer ml-1"
                       onClick={() => removeSkill(skill)}
@@ -229,11 +237,14 @@ const EditJob = ({ data, isOpen, setIsOpen }) => {
               <Controller
                 name="jobStatus"
                 control={control}
-                defaultValue={getValues('jobStatus')} // or true, based on your data
+                defaultValue={getValues("jobStatus")}
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked);
+                      console.log(getValues());
+                    }}
                   />
                 )}
               />
@@ -362,10 +373,7 @@ const EditJob = ({ data, isOpen, setIsOpen }) => {
                 name="interviewDuration"
                 defaultValue={data?.interviewDuration || ""}
                 render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select duration" />
                     </SelectTrigger>
@@ -419,7 +427,7 @@ const EditJob = ({ data, isOpen, setIsOpen }) => {
             )}
           </div>
 
-          <DialogFooter className={'text-right'}>
+          <DialogFooter className={"text-right"}>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
