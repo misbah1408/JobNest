@@ -161,134 +161,37 @@ export async function GET(request) {
   const token = await getToken({ req: request });
 
   if (!token) {
-    return NextResponse.json(
-      { success: false, message: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get("page")) || 1;
+  const limit = parseInt(searchParams.get("limit")) || 5;
+
+  const skip = (page - 1) * limit;
+
   try {
-    if (token.role === "job_seeker") {
-      try {
-        const jobs = await JobModel.find();
-        // console.log(jobs);
-        if (!jobs) {
-          return NextResponse.json(
-            {
-              success: false,
-              message: "No jobs found",
-            },
-            { status: 404 }
-          );
-        }
-        return NextResponse.json(
-          {
-            success: true,
-            message: "Jobs fetched successfully",
-            jobs,
-          },
-          { status: 200 }
-        );
-      } catch (error) {
-        console.error("Error in fetching jobs: ", error.message);
-        return NextResponse.json(
-          { error: "Error in fetching jobs" },
-          { status: 500 }
-        );
-      }
-    }
-    const { searchParams } = new URL(request.url);
-    const postedBy = searchParams.get("postedBy");
-    const active = searchParams.get("active");
-    const jobType = searchParams.get("jobType");
-    const location = searchParams.get("location");
-    const skills = searchParams.get("skills");
-    const page = parseInt(searchParams.get("page")) || 1;
-    const limit = parseInt(searchParams.get("limit")) || 10;
-    const sort = searchParams.get("sort") || "createdAt";
-    const order = searchParams.get("order") || "desc";
-
-    // Build filter object
-    const filter = {};
-
-    if (postedBy) {
-      filter.postedBy = postedBy;
-    }
-
-    if (active === "true") {
-      filter.isActive = true;
-      filter.jobStatus = true;
-      filter.expiryDate = { $gt: new Date() };
-    }
-
-    if (jobType) {
-      filter.jobType = jobType;
-    }
-
-    if (location) {
-      filter.location = { $regex: location, $options: "i" };
-    }
-
-    if (skills) {
-      const skillsArray = skills.split(",").map((skill) => skill.trim());
-      filter.skills = { $in: skillsArray };
-    }
-
-    // Calculate pagination
-    const skip = (page - 1) * limit;
-    const sortOrder = order === "desc" ? -1 : 1;
-    const sortObj = { [sort]: sortOrder };
-
-    // Execute query with pagination
-    const jobs = await JobModel.find(filter)
-      .populate("postedBy", "name email")
-      .sort(sortObj)
+    const jobs = await JobModel.find()
+      .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit)
-      .lean();
-    // const jobs = await JobModel.find({ postedBy });
-    // // console.log(jobs);
+      .limit(limit);
 
-    // Get total count for pagination
-    const totalJobs = await JobModel.countDocuments(filter);
-    const totalPages = Math.ceil(totalJobs / limit);
+    const total = await JobModel.countDocuments();
 
-    if (!jobs || jobs.length === 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "No jobs found",
-          pagination: {
-            currentPage: page,
-            totalPages: 0,
-            totalJobs: 0,
-            hasNext: false,
-            hasPrev: false,
-          },
-        },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Jobs fetched successfully",
-        jobs,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalJobs,
-          hasNext: page < totalPages,
-          hasPrev: page > 1,
-        },
+    return NextResponse.json({
+      success: true,
+      jobs,
+      pagination: {
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+        hasNext: page * limit < total,
       },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error in fetching jobs: ", error.message);
+    });
+  } catch (err) {
+    console.error(err);
     return NextResponse.json(
-      { error: "Error in fetching jobs" },
+      { message: "Server error", error: err.message },
       { status: 500 }
     );
   }

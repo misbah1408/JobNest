@@ -46,7 +46,7 @@ const Page = () => {
   const jobId = params.jobid;
   const { data: session } = useSession();
   const user = session?.user;
-  console.log(user);
+  // console.log(session);
   const {
     applications,
     companyName,
@@ -77,7 +77,7 @@ const Page = () => {
 
       // Access response data
       const data = response.data;
-      console.log(data.data);
+      // console.log(data.data);
 
       if (data.success) {
         setJobDetails(data.data);
@@ -163,6 +163,10 @@ const Page = () => {
     }
   };
   useEffect(() => {
+    if (!session) {
+      // fetchJobDetails();
+      toast.error("Please login/sign");
+    }
     fetchJobDetails();
   }, []);
 
@@ -260,13 +264,24 @@ const Page = () => {
             </div>
             <div className="flex items-center mb-3">
               <Users2 className="w-5 h-5 mr-3 text-gray-400" />
-              {applicants.length > 0 && 
-              <div>
-                <span className="text-gray-400">No of Applicants: </span>
-                <span className="dark:text-white text-xl">{applicants.length}</span>
-              </div>
-              }
+              {applicants.length > 0 ? (
+                <div>
+                  <span className="text-gray-400">No of Applicants: </span>
+                  <span className="dark:text-white text-xl">
+                    {applicants.length}
+                  </span>
+                </div>
+              ) : (
+                <div>
+                  <span className="text-gray-400">
+                    {user?.role === "job_seeker"
+                      ? "Apply now: Be an early applicant"
+                      : "Admin/Recruiter View"}
+                  </span>
+                </div>
+              )}
             </div>
+
             {/* Required Skills */}
             {skills && (
               <div className="mb-6">
@@ -292,16 +307,25 @@ const Page = () => {
             </button> */}
             <Dialog>
               <DialogTrigger asChild>
-                {!applicants.includes(user._id) ? (
-                  <Button className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200">
-                    Apply
-                  </Button>
+                {user?.role === "job_seeker" ? (
+                  !applicants.includes(user._id) ? (
+                    <Button className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200">
+                      Apply
+                    </Button>
+                  ) : (
+                    <Button
+                      disabled={true}
+                      className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200 cursor-not-allowed"
+                    >
+                      Already Applied
+                    </Button>
+                  )
                 ) : (
                   <Button
+                    className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200"
                     disabled={true}
-                    className="w-full bg-gray-300 hover:bg-gray-200 text-gray-900 font-medium py-3 px-4 rounded-lg transition-colors duration-200 cursor-not-allowed"
                   >
-                    Already Applied
+                    Admin/Recruiter View
                   </Button>
                 )}
               </DialogTrigger>
