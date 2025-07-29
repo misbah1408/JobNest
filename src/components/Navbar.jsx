@@ -44,7 +44,7 @@ const Navbar = () => {
 
   return (
     <nav className="p-3 w-full fixed top-0 bg-transparent flex justify-center z-10">
-      <div className="w-[95%] text-black dark:text-white bg-white/10 backdrop-blur-md rounded-full p-2 shadow-lg">
+      <div className="md:w-[95%] w-full text-black dark:text-white bg-white/10 backdrop-blur-md md:rounded-full p-2 shadow-lg">
         <div className="mx-auto flex justify-around items-center">
           {/* Logo */}
           <Link href="/dashboard">
@@ -106,11 +106,13 @@ const Navbar = () => {
               >
                 <MenubarTrigger className="p-0 bg-transparent rounded-full">
                   <Avatar className="w-10 h-10">
-                    {user?.picture && (
-                      <AvatarImage src={user.picture} alt="profile" />
+                    {user?.image && (
+                      // <AvatarImage src={user?.image} alt="profile" />
+                      <Image src={user?.image}  height={40} width={40} alt="profile"/>
+                      
                     )}
                     <AvatarFallback>
-                      <UserRound />
+                      {user?.name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 </MenubarTrigger>

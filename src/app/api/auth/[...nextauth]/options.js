@@ -102,7 +102,7 @@ export const authOptions = {
           token.isVerified = dbUser.isVerified;
           token.role = dbUser.role;
           token.name = dbUser.name;
-          token.picture = dbUser.image;
+          token.image = dbUser.image;
           token.resumeUrl = dbUser.resumeUrl;
         }
       }
@@ -118,7 +118,7 @@ export const authOptions = {
           isVerified: token.isVerified,
           role: token.role,
           name: token.name,
-          picture: token.picture,
+          image: token.image,
           resumeUrl: token.resumeUrl,
         };
       }
