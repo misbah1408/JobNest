@@ -83,7 +83,7 @@ const ProfileCard = ({ data }) => {
   }
 
   return (
-    <div className="w-full mt-28 grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 lg:px-12">
+    <div className="w-[90%] mt-28 grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 lg:px-12">
       <div className="relative lg:col-span-2 rounded-2xl space-y-3">
         <div
           className="relative flex flex-col md:flex-row items-center md:items-start gap-6 p-6 rounded-xl"
