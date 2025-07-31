@@ -12,7 +12,7 @@ import {
 import { Button } from "./ui/button";
 import Link from "next/link";
 
-export default function ResumeViewer({ name, resumeUrl, isOpen, setIsOpen }) {
+export default function ResumeViewer({ name, resumeUrl, isOpen, setIsOpen, text }) {
   const [showModal, setShowModal] = useState(false);
   // console.log(applicant);
 // name, resumeUrl
@@ -24,7 +24,7 @@ export default function ResumeViewer({ name, resumeUrl, isOpen, setIsOpen }) {
           setShowModal(true);
         }}
       >
-        View resume <ArrowRight className="h-4 w-4" />
+        {text ? text :"View resume"} <ArrowRight className="h-4 w-4" />
       </Button>
 
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>

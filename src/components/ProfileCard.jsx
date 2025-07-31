@@ -11,15 +11,18 @@ import ProbileTabs from "./ProbileTabs";
 import Image from "next/image";
 import { toast } from "sonner";
 import axios from "axios";
+import ResumeViewer from "./ResumeViewer";
 
 const ProfileCard = ({ data }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentUserValid, setCurrentUserValid] = useState(false);
   const [profileImg, setProfileImg] = useState();
   const { data: session } = useSession();
   const user = session?.user;
-
+  console.log(user);
+  
   const { email, isVerified, name, role, username, image } = data || {};
   const handleUploadResume = async () => {
     try {
@@ -41,17 +44,21 @@ const ProfileCard = ({ data }) => {
         const uploadRes = await axios.post("/api/upload-file", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        const resumeUrl = uploadRes?.data?.secure_url
+        const resumeUrl = uploadRes?.data?.secure_url;
         console.log(resumeUrl);
 
-        const extractedData = await axios.post("/api/ai/extract-resume", {resumeUrl})
+        await axios.post("/api/save-profile",{resumeUrl})
+        
+        const extractedData = await axios.post("/api/ai/extract-resume", {
+          resumeUrl,
+        });
 
         console.log(extractedData.data);
-        
+
         if (!uploadRes.ok) toast.error("Upload failed");
-        if(extractedData.status == 200){
+        if (extractedData.status == 200) {
           setLoading(false);
-          toast.success("Extracted Resume Successfully")
+          toast.success("Extracted Resume Successfully");
         }
         toast.success("Resume processed successfully!");
       };
@@ -101,7 +108,12 @@ const ProfileCard = ({ data }) => {
               }}
               className="object-cover"
               /> */}
-            <Image src={profileImg || "https://github.com/shadcn.png"} height={112} width={112} alt="profile" />
+            <Image
+              src={profileImg || "https://github.com/shadcn.png"}
+              height={112}
+              width={112}
+              alt="profile"
+            />
             {/* <AvatarImage></AvatarImage> */}
             {/* <AvatarFallback className="bg-gray-200 text-gray-600 text-xl">
               {name?.charAt(0)}
@@ -136,22 +148,32 @@ const ProfileCard = ({ data }) => {
       </div>
 
       {/* Resume Extractor Section */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 flex flex-col items-center justify-center max-h-fit">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-          AI Resume Extractor
-        </h3>
-        <StarsIcon size={80} className="mt-4 text-indigo-400 fill-indigo-200" />
-        <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
-          Upload your resume and let AI fill in your details automatically.
-        </p>
-        <Button
-          className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg shadow"
-          onClick={(e)=>handleUploadResume(e)}
-          disabled={loading}
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          {loading ? "Uploading..." : "Upload Resume"}
-        </Button>
+      <div className="space-y-2">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 flex flex-col items-center justify-center max-h-fit">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+            AI Resume Extractor
+          </h3>
+          <StarsIcon
+            size={80}
+            className="mt-4 text-indigo-400 fill-indigo-200"
+          />
+          <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-300">
+            Upload your resume and let AI fill in your details automatically.
+          </p>
+          <Button
+            className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg shadow"
+            onClick={(e) => handleUploadResume(e)}
+            disabled={loading}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            {loading ? "Uploading..." : "Upload Resume"}
+          </Button>
+        </div>
+        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md p-6 flex flex-col items-center justify-center max-h-fit">
+          <div onClick={()=>setIsOpen(true)}>
+          <ResumeViewer name={user.name} resumeUrl={user.resumeUrl} isOpen={isOpen} setIsOpen={setIsOpen} text={"View Current resume"}/>
+          </div>
+        </div>
       </div>
     </div>
   );

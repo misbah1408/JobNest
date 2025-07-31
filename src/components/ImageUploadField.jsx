@@ -9,6 +9,7 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import Image from "next/image";
 
 const ImageUploadField = ({ form, name = "image", defaultImage }) => {
   const fileInputRef = useRef(null);
@@ -28,13 +29,11 @@ const ImageUploadField = ({ form, name = "image", defaultImage }) => {
                 className="w-28 h-28 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden hover:border-blue-300 transition"
               >
                 {preview ? (
-                  preview && <img
-                    src={
-                      typeof preview === "string"
-                        ? preview
-                        : URL.createObjectURL(preview)
-                    }
-                    alt="Click to upload"
+                  <Image
+                    src={typeof preview === "string" ? preview : URL.createObjectURL(preview)}
+                    alt="Profile preview"
+                    width={112}
+                    height={112}
                     className="w-full h-full object-cover"
                   />
                 ) : (
