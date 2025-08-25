@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import ApplicationModel from '@/model/Application'; 
+import dbConnect from '@/lib/dbConnect';
+import JobModel from '@/model/Job';
+import UserModel from '@/model/User';
 
 export async function PATCH(request, { params }) {
     const {appId } = await params;
@@ -30,4 +33,45 @@ export async function PATCH(request, { params }) {
         console.error('Error updating application:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
+}
+
+
+export async function GET(request, { params }) {
+  await dbConnect();
+
+  const { appId } = params;
+  console.log("Application ID:", appId);
+
+  if (!appId) {
+    return NextResponse.json(
+      { error: "Application ID is required" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    // Find application
+    const application = await ApplicationModel.findById(appId);
+    if (!application) {
+      return NextResponse.json(
+        { error: "Application not found" },
+        { status: 404 }
+      );
+    }
+
+    // Fetch related job + user
+    const jobDetails = await JobModel.findById(application.jobId);
+    const user = await UserModel.findById(application.userId);
+
+    return NextResponse.json(
+      { application, jobDetails, user },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error while fetching application:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }

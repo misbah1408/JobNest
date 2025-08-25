@@ -70,11 +70,11 @@ const Page = () => {
   }, [debouncedQuery, locationFilter, statusFilter]);
 
   useEffect(() => {
-    console.log("Observer running, loading:", loading, "hasNext:", hasNextPage);
+    // console.log("Observer running, loading:", loading, "hasNext:", hasNextPage);
 
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
-        console.log("Reached bottom — fetching more...");
+        // console.log("Reached bottom — fetching more...");
         fetchJobs();
       }
     });

@@ -33,6 +33,7 @@ export async function GET(req, { params }) {
                     coverLetter: 1,
                     appliedAt: 1,
                     employerNotes: 1,
+                    matchScore:1,
                     user: {
                         _id: "$userDetails._id",
                         name: "$userDetails.name",

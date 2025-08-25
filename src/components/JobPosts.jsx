@@ -74,14 +74,14 @@ const PostedJobs = ({ jobs, onSuccess }) => {
                     .fill(0)
                     .map((_, colIdx) => (
                       <TableCell key={colIdx}>
-                        <div className="h-6 bg-gray-600 rounded w-full" />
+                        <div className="h-6 bg-gray-400 rounded w-full" />
                       </TableCell>
                     ))}
                 </TableRow>
               ))
             : jobs.map((job) => (
                 <TableRow key={job._id}>
-                  <TableCell className="font-medium">{job.jobTitle}</TableCell>
+                  <TableCell className="font-medium"><Link href={"/dashboard/employer/"+job._id}>{job.jobTitle}</Link></TableCell>
                   <TableCell>{job.companyName}</TableCell>
                   <TableCell className="flex flex-wrap">
                     {job?.skills?.slice(0, 3).map((skill, i) => (

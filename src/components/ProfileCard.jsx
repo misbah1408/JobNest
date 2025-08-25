@@ -1,4 +1,3 @@
-// ProfileCard.jsx
 import React, { useEffect, useState } from "react";
 import { StarsIcon, Upload, Verified } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -21,7 +20,7 @@ const ProfileCard = ({ data }) => {
   const [profileImg, setProfileImg] = useState();
   const { data: session } = useSession();
   const user = session?.user;
-  console.log(user);
+  // console.log(user);
   
   const { email, isVerified, name, role, username, image } = data || {};
   const handleUploadResume = async () => {
@@ -45,7 +44,7 @@ const ProfileCard = ({ data }) => {
           headers: { "Content-Type": "multipart/form-data" },
         });
         const resumeUrl = uploadRes?.data?.secure_url;
-        console.log(resumeUrl);
+        // console.log(resumeUrl);
 
         await axios.post("/api/save-profile",{resumeUrl})
         
@@ -53,7 +52,7 @@ const ProfileCard = ({ data }) => {
           resumeUrl,
         });
 
-        console.log(extractedData.data);
+        // console.log(extractedData.data);
 
         if (!uploadRes.ok) toast.error("Upload failed");
         if (extractedData.status == 200) {

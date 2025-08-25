@@ -40,6 +40,7 @@ const JobCard = ({ job, id }) => {
     location,
     salary,
     createdAt,
+    skills,
     _id,
     applicants,
   } = job || {};
@@ -61,13 +62,18 @@ const JobCard = ({ job, id }) => {
 
   const onSubmit = async (formData) => {
     const toastId = toast.loading("Application submitting...");
-    console.log(formData);
+    // console.log(formData);
 
     try {
       const applicationPayload = {
         ...formData,
         resumeUrl: user?.resumeUrl,
         jobId: _id,
+        job:{
+          jobTitle,
+          companyName,
+          skills,
+        }
       };
 
       if (!formData.resumeUrl) {
@@ -82,10 +88,10 @@ const JobCard = ({ job, id }) => {
         let resResumeUrl = uploadPDF?.data?.secure_url;
         applicationPayload.resResumeUrl = resResumeUrl;
       }
-      console.log(applicationPayload);
+      // console.log(applicationPayload);
 
       const res = await axios.post("/api/applications", applicationPayload);
-      console.log("Application submitted:", res.data);
+      // console.log("Application submitted:", res.data);
 
       if (res?.data?.message === "Already applied") {
         toast.dismiss(toastId, { id: toastId });
