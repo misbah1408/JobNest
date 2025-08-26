@@ -61,7 +61,7 @@ const ProfileTabs = () => {
     try {
       const res = await axios.get(`/api/resume-data?userId=${user._id}`);
       setResumeData(res.data.resume);
-      console.log(res.data.resume);
+      // console.log(res.data.resume);
     } catch (error) {
       console.error("Failed to fetch resume data:", error);
     } finally {

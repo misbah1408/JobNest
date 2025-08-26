@@ -27,7 +27,7 @@ const EmployerDashboard = () => {
       const params = new URLSearchParams({ postedBy: user._id });
       const res = await axios.get(`/api/create-job?${params.toString()}`);
       const data = res.data;
-      console.log(data);
+      // console.log(data);
       
       if (data.success) {
         setAllJobs(data.jobs || []);
@@ -45,7 +45,7 @@ const EmployerDashboard = () => {
   useEffect(() => {
     if (user?._id) {
       fetchJobs();
-      console.log(visibleJobs);
+      // console.log(visibleJobs);
     }
   }, [user?._id]);
 

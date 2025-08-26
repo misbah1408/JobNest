@@ -47,7 +47,7 @@ export default function SignUpForm() {
         const response = await axios.get(
           `/api/check-username-unique?username=${username}`
         );
-        console.log(response);
+        // console.log(response);
 
         setUsernameMessage(response.data.message);
       } catch (error) {

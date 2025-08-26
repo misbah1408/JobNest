@@ -36,6 +36,8 @@ const page = () => {
       try {
         const res = await axios.get(`/api/applications/applicants/${jobId}`);
         setApplicants(res.data);
+        // console.log(res.data);
+        
       } catch (error) {
         console.error("Error fetching applicants:", error);
         toast.error("Failed to load applicants");
@@ -48,11 +50,11 @@ const page = () => {
 
         // Access response data
         const data = response.data;
-        console.log(data.data);
+        // console.log(data.data);
 
         if (data.success) {
           setJobDetails(data.data);
-          console.log(data.data);
+          // console.log(data.data);
         } else {
           console.error("Job not found or other error:", data.message);
         }

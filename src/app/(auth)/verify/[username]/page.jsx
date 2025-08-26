@@ -20,7 +20,7 @@ export default function VerifyAccount() {
   const router = useRouter();
   const params = useParams();
   const [searchParams] = useSearchParams();
-  console.log(params.username);
+  // console.log(params.username);
   
   let otp;
   if(searchParams){
@@ -39,7 +39,7 @@ export default function VerifyAccount() {
         username: params.username,
         code: data.verifyCode,
       });
-      console.log(response);
+      // console.log(response);
       
       toast('Success',{
         description: response.data.message,

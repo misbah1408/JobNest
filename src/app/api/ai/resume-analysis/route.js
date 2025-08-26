@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   const token = await getToken({ req });
-  console.log("User token:", token);
+  // console.log("User token:", token);
 
   // Uncomment if you want role-based restriction
   // if (token?.role !== "employer") {

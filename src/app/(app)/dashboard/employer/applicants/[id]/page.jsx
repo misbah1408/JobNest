@@ -1,5 +1,6 @@
 "use client";
 
+import ApplicantDetails from "@/components/ApplicantDetails";
 import ResumeViewer from "@/components/ResumeViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,17 +29,23 @@ const page = () => {
   const fetchApplicantDetails = async () => {
     try {
       const res = await axios.get("/api/applications/applicants/update/" + id);
-      console.log(res.data);
+      // console.log(res.data);
       setApplicant(res?.data?.application);
       setJobDetails(res?.data?.jobDetails);
       setUser(res?.data?.user);
       // toast.success("Applicant Details fetched!");
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       toast.error(error);
     }
   };
-
+  function getColor(){
+    let status = applicant.status;
+    if(status == "pending") return "yellow";
+    if(status == "reviewed") return "blue";
+    if(status == "accepted") return "green";
+    return "red";
+  }
   useEffect(() => {
     fetchApplicantDetails();
   }, []);
@@ -52,25 +59,25 @@ const page = () => {
   }
   return (
     <div className="w-full h-full mt-[100px] flex items-center flex-col">
-      <div className="w-[80%] ">
+      <div className="w-[80%] space-y-3">
         <div className="py-3">
-          <h2 className="text-3xl font-bold">Job Application Details</h2>
-          <p className="text-xl font-semibold">
+          <h2 className="md:text-3xl text-xl font-bold">Job Application Details</h2>
+          <p className="md:text-xl text-sm font-semibold">
             Detailed information for application submitted on{" "}
             {formatDate(new Date(applicant?.appliedAt), "MMMM dd, y")}
           </p>
         </div>
-        <div className="w-full border-2 px-10 py-5 rounded-2xl h-full">
+        <div className="w-full border-2 px-10 py-5 rounded-2xl h-full space-y-6">
           <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <p className="text-lg font-semibold">{jobDetails?.jobTitle}</p>
               <p>{jobDetails?.companyName}</p>
             </div>
-            <div className="text-blue-500 bg-blue-200 rounded-lg p-3 border border-blue-500">
-              Reviewed
-            </div>
+            <Badge className={`bg-${getColor()}-500/20 text-${getColor()}-500 text-lg py-2 px-4`}>
+              {applicant?.status[0].toUpperCase()+applicant?.status?.slice(1,applicant?.status.length)}
+            </Badge>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               {/* Resume */}
               <div className="flex items-center">
@@ -146,12 +153,15 @@ const page = () => {
                   style={{ width: applicant?.matchScore+"%" }}
                 ></div>
               </div>
-              <div className="text-md text-muted-foreground text-right">
-                Analyzed on{" "}
+              <div className="md:text-md text-sm text-muted-foreground text-right">
+                Analyzed on 
                 {formatDate(new Date(applicant?.appliedAt), "MMMM dd, y")}
               </div>
             </div>
           </div>
+        </div>
+        <div>
+          <ApplicantDetails applicant={applicant} candidate={user} onSuccess={fetchApplicantDetails}/>
         </div>
       </div>
     </div>

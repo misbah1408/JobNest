@@ -29,7 +29,7 @@ const PDFViewer = ({ url }) => {
       }
 
       await navigator.clipboard.writeText(fullText);
-      console.log(fullText);
+      // console.log(fullText);
 
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);

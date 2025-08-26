@@ -104,7 +104,7 @@ const Page = () => {
 
   const onSubmit = async (formData) => {
     const toastId = toast.loading("Application submitting...");
-    console.log(formData);
+    // console.log(formData);
 
     try {
       const applicationPayload = {
@@ -112,7 +112,7 @@ const Page = () => {
         resumeUrl: user?.resumeUrl,
         jobId: jobId,
       };
-      console.log(applicationPayload);
+      // console.log(applicationPayload);
 
       if (!applicationPayload.resumeUrl) {
         const uploadPDF = await axios.post(
@@ -126,10 +126,10 @@ const Page = () => {
         let resResumeUrl = uploadPDF?.data?.secure_url;
         applicationPayload.resResumeUrl = resResumeUrl;
       }
-      console.log(applicationPayload);
+      // console.log(applicationPayload);
 
       const res = await axios.post("/api/applications", applicationPayload);
-      console.log("Application submitted:", res.data);
+      // console.log("Application submitted:", res.data);
 
       if (res?.data?.message === "Already applied") {
         toast.dismiss(toastId, { id: toastId });

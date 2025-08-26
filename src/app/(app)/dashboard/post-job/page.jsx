@@ -126,7 +126,7 @@ const PostJobPage = () => {
       });
 
       const { description } = response.data;
-      console.log(description);
+      // console.log(description);
 
       if (description) {
         setValue("jobDescription", description);
@@ -148,7 +148,7 @@ const PostJobPage = () => {
       location: city.trim() !== "" ? `${state}, ${city}` : state,
       skills: skills, // Use the skills from state
     };
-    console.log(payload);
+    // console.log(payload);
 
     try {
       const res = await axios.post("/api/create-job", payload);

@@ -111,7 +111,7 @@ const EditJob = ({ data, onSuccess}) => {
 
   const generateWithAI = async () => {
     const values = getValues();
-    console.log(values);
+    // console.log(values);
 
     if (
       !values.jobTitle ||
@@ -243,7 +243,7 @@ const EditJob = ({ data, onSuccess}) => {
                     checked={field.value}
                     onCheckedChange={(checked) => {
                       field.onChange(checked);
-                      console.log(getValues());
+                      // console.log(getValues());
                     }}
                   />
                 )}

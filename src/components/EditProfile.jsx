@@ -78,13 +78,13 @@ const EditProfile = ({ isEditOpen, setIsEditOpen, data }) => {
 
         formData.resumeUrl = uploadResumeRes?.data?.secure_url;
       }
-      console.log(formData);
+      // console.log(formData);
       
       // Step 3: Save the profile
       const saveRes = await axios.post("/api/save-profile", formData);
       const message = saveRes?.data?.message || "Profile updated successfully!";
       toast.success(message, { id: toastId });
-      console.log(saveRes);
+      // console.log(saveRes);
       
       setIsEditOpen(false);
     } catch (error) {
