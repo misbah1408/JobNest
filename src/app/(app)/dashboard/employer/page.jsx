@@ -84,7 +84,7 @@ const EmployerDashboard = () => {
           <h1 className="text-2xl font-semibold">Job Management</h1>
           <span className="text-gray-600">Manage your job listings</span>
         </div>
-        <div className="bg-gray-100 px-4 py-2 rounded-lg shadow-sm">
+        <div className="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-lg shadow-sm">
           <span className="font-semibold">{totalApplicants}</span> Applicants
         </div>
       </div>

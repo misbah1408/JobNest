@@ -37,7 +37,6 @@ const page = () => {
         const res = await axios.get(`/api/applications/applicants/${jobId}`);
         setApplicants(res.data);
         // console.log(res.data);
-        
       } catch (error) {
         console.error("Error fetching applicants:", error);
         toast.error("Failed to load applicants");
@@ -122,18 +121,29 @@ const page = () => {
     }
   };
 
-  // Get AI analysis for a specific applicant
-  const getApplicantAnalysis = (applicantId) => {
-    return aiAnalysisResults.find(
-      (result) => result.applicationId === applicantId
-    );
+  const statusMap = {
+    accepted: {
+      text: "Accepted",
+      badge: "bg-green-500/20 text-green-500",
+    },
+    rejected: {
+      text: "Rejected",
+      badge: "bg-red-500/20 text-red-700",
+    },
+    pending: {
+      text: "Pending",
+      badge: "bg-amber-500/20 text-amber-500",
+    },
+    reviewed: {
+      text: "Reviewed",
+      badge: "bg-blue-500/20 text-blue-700",
+    },
   };
-
   return (
     <div className="px-4 py-10 mt-[90px] flex flex-col items-center w-full">
       <div className="mb-8 text-center">
         {/* <h1 className="text-3xl font-bold mb-2">Applicant AI Analyzer</h1> */}
-        <p className="text-black mb-4 font-bold text-xl">
+        <p className="mb-4 font-bold text-xl">
           Reviewing applicants for: {jobDetails?.jobTitle} at{" "}
           {jobDetails?.companyName}
         </p>
@@ -160,7 +170,7 @@ const page = () => {
               {/* <TableHead>Interview Status</TableHead> */}
               <TableHead className={"text-center"}>Status</TableHead>
               <TableHead className={"text-center"}> Applied Date</TableHead>
-              <TableHead className="text-center min-w-40">View</TableHead>
+              <TableHead className="text-center min-w-40">Details</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -186,21 +196,19 @@ const page = () => {
                 <TableCell className={"text-center"}>
                   <Badge
                     className={
-                      applicant.status === "accepted"
-                        ? "bg-green-200 text-green-700"
-                        : applicant.status === "pending"
-                          ? "bg-yellow-100 text-yellow-500"
-                          : "bg-red-200 text-red-500"
+                      statusMap[applicant?.status]?.badge
                     }
                   >
-                    {applicant.status}
+                    {statusMap[applicant?.status]?.text}
                   </Badge>
                 </TableCell>
                 <TableCell className={"text-center"}>
                   {formatDate(new Date(applicant.appliedAt), "MMMM dd, y")}
                 </TableCell>
                 <TableCell className={"text-center"}>
-                  <Link href={"/dashboard/employer/applicants/"+applicant?._id}>
+                  <Link
+                    href={"/dashboard/employer/applicants/" + applicant?._id}
+                  >
                     <Button variant={"link"}>
                       View Details <ArrowRight />
                     </Button>

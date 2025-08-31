@@ -4,6 +4,7 @@ import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import JobModel from "@/model/Job";
 import axios from "axios";
+import mongoose from "mongoose";
 
 export async function POST(request) {
   await dbConnect();
@@ -65,17 +66,20 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    
+
     let candidateAnalysis;
     try {
-      const res = await axios.post("http://localhost:3000/api/ai/resume-analysis", {resumeText, job} );
+      const res = await axios.post(
+        "http://localhost:3000/api/ai/resume-analysis",
+        { resumeText, job }
+      );
       candidateAnalysis = res.data.analysis;
       // console.log(res.data.analysis);
     } catch (error) {
       console.log(error);
-      return NextResponse.json({message:"Error while resume analysis"})
+      return NextResponse.json({ message: "Error while resume analysis" });
     }
-    const {matchScore, resumeAnalysis} = candidateAnalysis;
+    const { matchScore, resumeAnalysis } = candidateAnalysis;
     const newApplication = new ApplicationModel({
       jobId,
       userId,
@@ -83,7 +87,7 @@ export async function POST(request) {
       coverLetter,
       status: applicationStatus,
       matchScore,
-      resumeAnalysis
+      resumeAnalysis,
     });
 
     await newApplication.save();
@@ -103,7 +107,7 @@ export async function POST(request) {
           resumeUrl: newApplication.resumeUrl,
           coverLetter: newApplication.coverLetter,
           status: newApplication.status,
-          resumeAnalysis: newApplication.resumeAnalysis
+          resumeAnalysis: newApplication.resumeAnalysis,
         },
       },
       { status: 201 }
@@ -124,20 +128,33 @@ export async function GET(request) {
   await dbConnect();
   const token = await getToken({ req: request });
   if (!token) {
-    return new Response.json(
+    return NextResponse.json(
       { success: false, message: "Unauthorized" },
       { status: 401 }
     );
   }
+
   try {
     const userId = token._id;
-    // console.log(token);
+    const applications = await ApplicationModel.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      {
+        $lookup: {
+          from: "jobs",
+          localField: "jobId",
+          foreignField: "_id",
+          as: "jobDetails",
+        },
+      },
+      { $unwind: "$jobDetails" },
+    ]);
 
-    const applications = await ApplicationModel.find({ userId });
-    if (!applications) {
-      return new Response("No applications found", { status: 404 });
+    if (!applications || applications.length === 0) {
+      return NextResponse.json(
+        { message: "No applications found" },
+        { status: 404 }
+      );
     }
-    // console.log(applications);
 
     return NextResponse.json(
       {
@@ -148,7 +165,7 @@ export async function GET(request) {
       { status: 200 }
     );
   } catch (error) {
-    console.log("Error while fetching data", error);
+    console.error("Error while fetching applications:", error);
     return NextResponse.json(
       { error: "Error while fetching data" },
       { status: 500 }
