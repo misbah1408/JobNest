@@ -83,6 +83,7 @@ export const authOptions = {
 
     async jwt({ token, user }) {
       // console.log("token", token);
+      await dbConnect();
 
       if (user) {
         token._id = user._id;
@@ -110,6 +111,7 @@ export const authOptions = {
     },
 
     async session({ session, token }) {
+      await dbConnect();
       if (token) {
         session.user = {
           _id: token._id,
@@ -125,30 +127,16 @@ export const authOptions = {
       return session;
     },
   },
-  cookies: {
-    sessionToken: {
-      name:
-        process.env.NODE_ENV === "production"
-          ? "__Secure-next-auth.session-token"
-          : "next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "none",
-        secure: process.env.NODE_ENV === "production",
-        path: "/",
-      },
-    },
-  },
   pages: {
     signIn: "/sign-in",
   },
 
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 60 * 24 * 60 * 60,
   },
   jwt: {
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 60 * 24 * 60 * 60,
   },
 
   secret: process.env.NEXTAUTH_SECRET,

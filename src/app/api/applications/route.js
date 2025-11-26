@@ -70,7 +70,7 @@ export async function POST(request) {
     let candidateAnalysis;
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/ai/resume-analysis",
+        `${process.env.NEXTAUTH_URL}/api/ai/resume-analysis`,
         { resumeText, job }
       );
       candidateAnalysis = res.data.analysis;

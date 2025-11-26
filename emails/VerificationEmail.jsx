@@ -45,7 +45,7 @@ export default function VerificationEmail({ username, otp }) {
           </Text>
 
           <Button
-            href={`http://localhost:3000/verify/${encodeURIComponent(username)}?otp=${encodeURIComponent(otp)}`}
+            href={`${process.env.NEXTAUTH_URL}/verify/${encodeURIComponent(username)}?otp=${encodeURIComponent(otp)}`}
             className="bg-green-500 text-white px-6 py-3 rounded-md text-lg font-semibold shadow-md hover:bg-green-600 transition-all duration-300"
           >
             Verify Your Email

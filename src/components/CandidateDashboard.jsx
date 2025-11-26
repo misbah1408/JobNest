@@ -35,7 +35,7 @@ const CandidateDashboard = () => {
     setApplications(response?.data?.data.reverse());
   };
   const {theme} = useTheme();
-  console.log(theme);
+  // console.log(theme);
   
   const counts = useMemo(() => {
     return applications?.reduce(

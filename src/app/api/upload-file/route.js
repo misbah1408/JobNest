@@ -21,7 +21,7 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData?.get("file") || formData?.get("files[]");
-    console.log(formData);
+    // console.log(formData);
 
     if (!file) {
       return NextResponse.json({ error: "File not found" }, { status: 400 });

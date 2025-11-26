@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap'); */
 @import "tailwindcss";
 @import "tw-animate-css";
 @tailwind utilities;
@@ -123,9 +123,9 @@
     @apply bg-background text-foreground;
   }
 }
-body {
+/* body {
   font-family: 'Syne', sans-serif;
-}
+} */
 
 html {
   transition: background-color 0.3s, color 0.3s;
