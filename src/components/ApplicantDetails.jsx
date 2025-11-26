@@ -150,7 +150,7 @@ const ApplicantDetails = ({ applicant, candidate, onSuccess }) => {
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-medium mb-2">Experience</h3>
+            <h3 className="text-lg font-medium mb-2">Cover Letter</h3>
             <div className="border rounded-lg p-4 bg-muted/30">
               <p className="whitespace-pre-line">{coverLetter}</p>
             </div>

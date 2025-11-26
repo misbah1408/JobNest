@@ -24,15 +24,19 @@ import {
 } from "recharts";
 import axios from "axios";
 import { format } from "date-fns";
+import { useTheme } from "next-themes";
 
 const CandidateDashboard = () => {
   const [applications, setApplications] = useState([]);
+  const [successRate, setSuccessRate] = useState(0);
   const fetchApplications = async () => {
     const response = await axios.get("/api/applications");
     // console.log(response);
     setApplications(response?.data?.data.reverse());
   };
-
+  const {theme} = useTheme();
+  console.log(theme);
+  
   const counts = useMemo(() => {
     return applications?.reduce(
       (acc, app) => {
@@ -44,10 +48,10 @@ const CandidateDashboard = () => {
   }, [applications]);
 
   const data = [
-    { name: "Accepted", value: counts?.accepted || 51, color: "#10b981" },
     { name: "Pending", value: counts?.pending || 60, color: "#fbbf24" },
-    { name: "Rejected", value: counts?.rejected || 5, color: "#ef4444" },
+    { name: "Accepted", value: counts?.accepted || 51, color: "#10b981" },
     { name: "Reviewed", value: counts?.reviewed || 13, color: "#3b82f6" },
+    { name: "Rejected", value: counts?.rejected || 5, color: "#ef4444" },
   ];
   const statusColors = {
     reviewed: "text-blue-500",
@@ -57,8 +61,21 @@ const CandidateDashboard = () => {
   };
   useEffect(() => {
     fetchApplications();
-    console.log(counts);
   }, []);
+
+  useEffect(() => {
+    // console.log(applications);
+    
+    if (applications.length > 0) {
+      const total = applications.length;
+      const accepted = applications.filter(
+        (app) => app.status === "accepted"
+      ).length;
+      const rate = total > 0 ? ((accepted / total) * 100).toFixed(2) : 0;
+      setSuccessRate(rate);
+    }
+  }, [applications]);
+
   return (
     <div className="mt-[100px] h-full w-full flex flex-col items-center">
       <div className="w-[80%] py-6 space-y-5">
@@ -75,7 +92,7 @@ const CandidateDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent className="px-6">
-                <div className="text-2xl font-bold">70</div>
+                <div className="text-2xl font-bold">{applications?.length}</div>
                 <p className="text-xs text-muted-foreground">
                   Total jobs you've applied to
                 </p>
@@ -92,7 +109,7 @@ const CandidateDashboard = () => {
               </div>
             </CardHeader>
             <CardContent className="px-6">
-              <div className="text-2xl font-bold">2.9%</div>
+              <div className="text-2xl font-bold">{successRate}%</div>
               <p className="text-xs text-muted-foreground">
                 Percentage of successful applications
               </p>
@@ -150,7 +167,7 @@ const CandidateDashboard = () => {
               "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
             }
           >
-            <CardHeader onClick={() => console.log(counts)}>
+            <CardHeader>
               <CardTitle>Applications by Status</CardTitle>
               <CardDescription>
                 Status distribution of your job applications
@@ -187,7 +204,7 @@ const CandidateDashboard = () => {
                           x={x}
                           y={y}
                           fill="#fff"
-                          textAnchor={"middle"}
+                          textAnchor="middle"
                           dominantBaseline="central"
                           className="text-sm font-medium"
                         >
@@ -200,8 +217,8 @@ const CandidateDashboard = () => {
                       <Cell
                         key={`cell-${index}`}
                         fill={entry.color}
-                        stroke="#1E293B"
-                        strokeWidth={2}
+                        stroke={theme === "dark" ? "#0f172b" : "#fff"}
+                        strokeWidth={5}
                       />
                     ))}
                   </Pie>
@@ -225,8 +242,8 @@ const CandidateDashboard = () => {
                               className="inline-block w-3 h-3 rounded-full"
                               style={{ backgroundColor: entry.color }}
                             />
-                            <span className="text-sm font-medium text-slate-200">
-                              {entry.value} ({data[index].value})
+                            <span className="text-sm font-medium ">
+                              {entry.value} ({entry.payload.value})
                             </span>
                           </li>
                         ))}

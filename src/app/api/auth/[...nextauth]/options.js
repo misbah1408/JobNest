@@ -125,7 +125,20 @@ export const authOptions = {
       return session;
     },
   },
-
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+      },
+    },
+  },
   pages: {
     signIn: "/sign-in",
   },
